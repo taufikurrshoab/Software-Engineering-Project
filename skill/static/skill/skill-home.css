@@ -519,3 +519,219 @@ a.sk-pnode:hover { border-color: var(--sk-secondary); background: var(--sk-eleva
 @media (prefers-reduced-motion: reduce) {
     a.sk-pnode { transition: none; }
 }
+
+/* Compact full-width recommendations panel (moved below the skill workspace) */
+.skill-recommendations-panel {
+    margin-bottom: 20px;
+}
+
+.skill-recommendations-panel .skill-panel__head {
+    align-items: center;
+}
+
+.skill-recommendations-panel .skill-recs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    align-items: start;
+    gap: 12px;
+}
+
+.skill-recommendations-panel .skill-rec {
+    min-width: 0;
+    gap: 10px;
+    padding: 14px;
+    border: 1px solid var(--sk-border);
+    border-radius: var(--sk-r-sm);
+    background: var(--sk-surface);
+}
+
+.skill-recommendations-panel .skill-rec:first-child {
+    padding: 14px;
+    border-top: 1px solid var(--sk-border);
+}
+
+.skill-recommendations-panel .skill-rec__items {
+    gap: 8px;
+}
+
+.skill-recommendations-panel .skill-rec__item {
+    padding: 9px 10px;
+}
+
+.skill-recommendations-panel .skill-hint {
+    margin-top: 12px;
+}
+
+@media (max-width: 640px) {
+    .skill-recommendations-panel {
+        padding: 16px;
+    }
+
+    .skill-recommendations-panel .skill-panel__head {
+        align-items: flex-start;
+    }
+
+    .skill-recommendations-panel .skill-recs {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+
+
+/* ==========================================================
+   Compact animated accordions for lower Skill page sections
+   ========================================================== */
+.skill-page .skill-accordion {
+    overflow: hidden;
+    padding: 0;
+}
+
+.skill-page .skill-accordion > .skill-accordion__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 68px;
+    padding: 16px 20px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    outline: none;
+    transition: background .22s ease, border-color .22s ease;
+}
+
+.skill-page .skill-accordion > .skill-accordion__summary::-webkit-details-marker {
+    display: none;
+}
+
+.skill-page .skill-accordion > .skill-accordion__summary:hover {
+    background: rgba(73, 119, 210, .075);
+}
+
+.skill-page .skill-accordion > .skill-accordion__summary:focus-visible {
+    outline: 2px solid var(--sk-accent, #62b9f5);
+    outline-offset: -3px;
+    border-radius: 12px;
+}
+
+.skill-page .skill-accordion__title {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.skill-page .skill-accordion__title strong {
+    color: var(--sk-text, #eef3ff);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.skill-page .skill-accordion__title small {
+    color: var(--sk-muted, #91a0ba);
+    font-size: .78rem;
+    line-height: 1.4;
+}
+
+.skill-page .skill-accordion__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    flex: 0 0 auto;
+    color: var(--sk-muted, #9aa9c2);
+    font-size: .76rem;
+    font-weight: 650;
+}
+
+.skill-page .skill-accordion__toggle::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg) translateY(-2px);
+    transition: transform .28s ease, color .28s ease;
+}
+
+.skill-page .skill-accordion[open] > .skill-accordion__summary {
+    border-bottom: 1px solid var(--sk-border, rgba(120, 150, 205, .2));
+    background: rgba(73, 119, 210, .045);
+}
+
+.skill-page .skill-accordion[open] .skill-accordion__toggle {
+    color: var(--sk-accent, #75c8ff);
+}
+
+.skill-page .skill-accordion[open] .skill-accordion__toggle::before {
+    content: "Collapse";
+}
+
+.skill-page .skill-accordion:not([open]) .skill-accordion__toggle::before {
+    content: "Expand";
+}
+
+.skill-page .skill-accordion__toggle {
+    font-size: 0;
+}
+
+.skill-page .skill-accordion__toggle::before {
+    font-size: .76rem;
+}
+
+.skill-page .skill-accordion[open] .skill-accordion__toggle::after {
+    transform: rotate(225deg) translate(-1px, -1px);
+}
+
+.skill-page .skill-accordion__content {
+    padding: 18px 20px 20px;
+}
+
+.skill-page .skill-accordion[open] > .skill-accordion__content {
+    animation: skillAccordionReveal .32s cubic-bezier(.2, .75, .25, 1) both;
+    transform-origin: top;
+}
+
+.skill-page .skill-accordion__actions {
+    margin: 0 0 14px;
+}
+
+.skill-page .skill-recommendations-panel .skill-recs {
+    margin-top: 0;
+}
+
+@keyframes skillAccordionReveal {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 640px) {
+    .skill-page .skill-accordion > .skill-accordion__summary {
+        min-height: 62px;
+        padding: 14px 15px;
+    }
+
+    .skill-page .skill-accordion__content {
+        padding: 14px 15px 16px;
+    }
+
+    .skill-page .skill-accordion__actions {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skill-page .skill-accordion > .skill-accordion__summary,
+    .skill-page .skill-accordion__toggle::after {
+        transition: none;
+    }
+
+    .skill-page .skill-accordion[open] > .skill-accordion__content {
+        animation: none;
+    }
+}

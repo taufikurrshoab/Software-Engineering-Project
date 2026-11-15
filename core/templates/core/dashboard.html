@@ -2,740 +2,505 @@
 {% load static %}
 
 {% block title %}
-Dashboard | Student Platform
+Dashboard | ThinkSphere
 {% endblock %}
 
 
 {% block extra_css %}
-
-<link
-    rel="stylesheet"
-    href="{% static 'css/dashboard.css' %}"
->
-
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
 
 {% block content %}
 
-<section class="platform-dashboard">
+<section class="platform-dashboard" aria-labelledby="td-title">
+
+    <!-- Icon sprite (decorative, referenced with <use>) -->
+    <svg class="td-sprite" aria-hidden="true" focusable="false" width="0" height="0">
+        <defs>
+            <symbol id="td-i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+            <symbol id="td-i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5Z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></symbol>
+            <symbol id="td-i-code" viewBox="0 0 24 24"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></symbol>
+            <symbol id="td-i-graph" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="9" cy="18" r="2.5"/><path d="m8.4 6.3 7.1 1.3M7.2 8.2l1.1 7.4M16.6 10.2 11 16.4"/></symbol>
+            <symbol id="td-i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></symbol>
+            <symbol id="td-i-brain" viewBox="0 0 24 24"><path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 2 5 3 3 0 0 0 6 1V4a3 3 0 0 0-3 0Z"/><path d="M15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-2 5 3 3 0 0 1-6 1"/></symbol>
+            <symbol id="td-i-spark" viewBox="0 0 24 24"><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"/><path d="M19 17v4M17 19h4"/></symbol>
+            <symbol id="td-i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></symbol>
+            <symbol id="td-i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+            <symbol id="td-i-clipboard" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 14l2 2 4-4"/></symbol>
+            <symbol id="td-i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 21l5-3 5 3-1.5-7"/></symbol>
+            <symbol id="td-i-timeline" viewBox="0 0 24 24"><path d="M4 6h9M4 12h16M4 18h7"/><circle cx="18" cy="6" r="2"/><circle cx="15" cy="18" r="2"/></symbol>
+            <symbol id="td-i-usercheck" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 11l2 2 4-4"/></symbol>
+            <symbol id="td-i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+            <symbol id="td-i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></symbol>
+            <symbol id="td-i-tree" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><path d="M12 7v4M12 11 6 17M12 11l6 6"/></symbol>
+            <symbol id="td-i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16"/></symbol>
+            <symbol id="td-i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/></symbol>
+            <symbol id="td-i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-6 3 12 2-6h7"/></symbol>
+            <symbol id="td-i-branch" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="6" cy="19" r="2"/><path d="M6 7v10M6 12h10"/></symbol>
+        </defs>
+    </svg>
 
 
     <!-- =====================================================
-         WELCOME HEADER
+         TOP: WELCOME + TODAY
     ====================================================== -->
 
-    <div class="dashboard-welcome">
+    <div class="td-top">
 
-        <div>
+        <!-- WELCOME -->
 
-            <p class="dashboard-label">
-                STUDENT DASHBOARD
-            </p>
+        <header class="td-card td-hero td-rise" style="--td-i: 0;">
 
-            <h1>
-                Welcome back, {{ user.username }}
+            <!-- decorative sphere + orbit, echoing the home page arc -->
+            <svg class="td-ring" viewBox="0 0 800 800" aria-hidden="true" focusable="false">
+                <defs>
+                    <linearGradient id="td-ring-grad" gradientUnits="userSpaceOnUse" x1="20" y1="400" x2="780" y2="400">
+                        <stop offset="0" stop-color="#3cc8d4"/>
+                        <stop offset="0.55" stop-color="#6f86ff"/>
+                        <stop offset="1" stop-color="#8b7bff"/>
+                    </linearGradient>
+                    <radialGradient id="td-core" cx="38%" cy="34%" r="75%">
+                        <stop offset="0" stop-color="#9fe9f0" stop-opacity="0.95"/>
+                        <stop offset="0.45" stop-color="#6f86ff" stop-opacity="0.75"/>
+                        <stop offset="1" stop-color="#3a2f9e" stop-opacity="0.55"/>
+                    </radialGradient>
+                </defs>
+                <circle cx="400" cy="400" r="190" fill="url(#td-core)" class="td-ring__core"/>
+                <circle cx="400" cy="400" r="190" fill="none" stroke="#b9c4ff" stroke-opacity="0.35" stroke-width="3"/>
+                <circle cx="400" cy="400" r="270" fill="none" stroke="#8b96ff" stroke-opacity="0.28" stroke-width="3"/>
+                <circle class="td-ring__outer" cx="400" cy="400" r="370" fill="none" stroke="url(#td-ring-grad)" stroke-width="6"/>
+                <circle cx="400" cy="400" r="330" fill="none" stroke="#8b96ff" stroke-opacity="0.3" stroke-width="3" stroke-dasharray="4 18"/>
+                <g class="td-ring__orbit">
+                    <circle cx="400" cy="30" r="26" fill="#3cc8d4" fill-opacity="0.22"/>
+                    <circle cx="400" cy="30" r="11" fill="#7feaf2"/>
+                    <circle cx="720" cy="585" r="24" fill="#8b7bff" fill-opacity="0.24"/>
+                    <circle cx="720" cy="585" r="9" fill="#b3a8ff"/>
+                    <circle cx="80" cy="585" r="22" fill="#5b8cff" fill-opacity="0.24"/>
+                    <circle cx="80" cy="585" r="8" fill="#9cbaff"/>
+                </g>
+            </svg>
+
+            <div class="td-hero__row">
+                <span class="td-status" role="status">
+                    <span class="td-status__dot" aria-hidden="true"></span>
+                    Ready to learn
+                </span>
+                <span class="td-eyebrow">STUDENT DASHBOARD</span>
+            </div>
+
+            <h1 id="td-title" class="td-hero__title">
+                <span class="td-word" style="--w: 0;">Welcome</span>
+                <span class="td-word" style="--w: 1;">back,</span>
+                <span class="td-word td-grad" style="--w: 2;">{{ user.username }}</span>
             </h1>
 
-            <p class="dashboard-subtitle">
+            <p class="td-hero__lead">
                 Continue learning, practice your skills,
                 and explore interactive tools.
             </p>
 
-        </div>
+            <div class="td-hero__actions">
+
+                <a href="{% url 'visual_lab:home' %}" class="td-btn td-btn--primary">
+                    Open Visual Lab
+                    <svg class="td-ico" aria-hidden="true"><use href="#td-i-arrow"></use></svg>
+                </a>
+
+                <a href="{% url 'academic:home' %}" class="td-btn td-btn--ghost">
+                    Open Academic
+                </a>
+
+                <a href="{% url 'skill:home' %}" class="td-btn td-btn--ghost">
+                    Build Skills
+                </a>
+
+            </div>
+
+        </header>
 
 
-        <div class="dashboard-status">
+        <!-- TODAY: real date / time from the visitor's device, filled in by dashboard.js -->
 
-            <span class="status-dot"></span>
+        <aside class="td-card td-today td-rise" style="--td-i: 1;" aria-label="Today">
 
-            Ready to learn
+            <p class="td-eyebrow" data-td-greet>WELCOME</p>
 
-        </div>
+            <div class="td-today__body">
+
+                <div class="td-dial" data-td-dial hidden>
+                    <svg viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+                        <defs>
+                            <linearGradient id="td-dial-grad" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0" stop-color="#3cc8d4"/>
+                                <stop offset="1" stop-color="#8b7bff"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="td-dial__track" cx="60" cy="60" r="52"/>
+                        <circle class="td-dial__fill" cx="60" cy="60" r="52" data-td-dial-fill/>
+                    </svg>
+                    <div class="td-dial__label">
+                        <strong data-td-dial-pct>0</strong><span>%</span>
+                        <small>of today</small>
+                    </div>
+                </div>
+
+                <div class="td-today__meta">
+                    <p class="td-today__time" data-td-time>{% now "H:i" %}</p>
+                    <p class="td-today__date" data-td-date>{% now "l, j F" %}</p>
+                </div>
+
+            </div>
+
+            <ol class="td-week" data-td-week aria-label="This week" hidden></ol>
+
+            <p class="td-today__tag">Think. Learn. Visualize. Grow.</p>
+
+        </aside>
 
     </div>
 
 
 
     <!-- =====================================================
-         OVERVIEW
+         YOUR SPACES
     ====================================================== -->
 
-    <div class="overview-grid">
-
-
-        <!-- GAMES -->
-
-        <div class="overview-card overview-card-highlight">
-
-            <div class="overview-top">
-
-                <div class="overview-icon">
-                    🎮
-                </div>
-
-                <span class="overview-label">
-                    GAMES
-                </span>
-
-            </div>
-
-
-            <h2>
-                3 Games
-            </h2>
-
-            <p>
-                Play interactive games and improve
-                your problem-solving skills.
-            </p>
-
-
-            <a
-                href="{% url 'mind_arena:home' %}"
-                class="dashboard-link"
-            >
-                Explore Games →
-            </a>
-
+    <div class="td-section-head td-rise" id="modules" data-td-reveal>
+        <div>
+            <p class="td-eyebrow">PLATFORM</p>
+            <h2 class="td-section-title">Your Spaces</h2>
         </div>
-
-
-
-        <!-- VISUALIZER -->
-
-        <div class="overview-card">
-
-            <div class="overview-top">
-
-                <div class="overview-icon">
-                    ◈
-                </div>
-
-                <span class="overview-label">
-                    VISUAL LAB
-                </span>
-
-            </div>
-
-
-            <h2>
-                1 Visualizer
-            </h2>
-
-            <p>
-                Understand algorithms through
-                interactive step-by-step visualization.
-            </p>
-
-
-            <a
-                href="{% url 'visual_lab:home' %}"
-                class="dashboard-link"
-            >
-                Explore Visual Lab →
-            </a>
-
-        </div>
-
-
-
-        <!-- PROGRESS -->
-
-        <div class="overview-card">
-
-            <div class="overview-top">
-
-                <div class="overview-icon">
-                    ⚡
-                </div>
-
-                <span class="overview-label">
-                    PROGRESS
-                </span>
-
-            </div>
-
-
-            <h2>
-                0% Progress
-            </h2>
-
-            <p>
-                Keep exploring the platform and
-                build your learning progress.
-            </p>
-
-
-            <a
-                href="#progress"
-                class="dashboard-link"
-            >
-                View Progress →
-            </a>
-
-        </div>
-
-
-
-        <!-- MODULES -->
-
-        <div class="overview-card">
-
-            <div class="overview-top">
-
-                <div class="overview-icon">
-                    🚀
-                </div>
-
-                <span class="overview-label">
-                    PLATFORM
-                </span>
-
-            </div>
-
-
-            <h2>
-                4 Modules
-            </h2>
-
-            <p>
-                Academic, Skills, Visual Lab and
-                Mind Arena are part of your platform.
-            </p>
-
-
-            <a
-                href="#modules"
-                class="dashboard-link"
-            >
-                Explore Modules →
-            </a>
-
-        </div>
-
-
+        <p class="td-section-sub">Three places to think, learn, visualize and grow.</p>
     </div>
 
+    <div class="td-portals">
 
+        <!-- ACADEMIC -->
 
-    <!-- =====================================================
-         LOWER DASHBOARD
-    ====================================================== -->
+        <article class="td-card td-portal td-spot td-tilt td-rise" data-td-reveal style="--td-i: 0; --td-tint: var(--td-cyan);">
 
-    <div class="dashboard-lower-grid">
-
-
-        <!-- =================================================
-             PROGRESS
-        ================================================== -->
-
-        <div
-            class="dashboard-panel"
-            id="progress"
-        >
-
-            <div class="panel-heading">
-
-                <div>
-
-                    <p class="dashboard-label">
-                        PROGRESS
-                    </p>
-
-                    <h2>
-                        Your Learning Journey
-                    </h2>
-
-                </div>
-
+            <div class="td-art" aria-hidden="true">
+                <svg viewBox="0 0 320 120" focusable="false">
+                    <path class="td-art__base" d="M14 108h292"/>
+                    <rect class="td-blk" x="20"  y="14" width="44" height="34" rx="8"/>
+                    <rect class="td-blk td-blk--hot" style="--k: 0;" x="20"  y="58" width="44" height="40" rx="8"/>
+                    <rect class="td-blk td-blk--hot" style="--k: 1;" x="82"  y="26" width="44" height="46" rx="8"/>
+                    <rect class="td-blk" x="82"  y="80" width="44" height="18" rx="8"/>
+                    <rect class="td-blk" x="144" y="12" width="44" height="26" rx="8"/>
+                    <rect class="td-blk td-blk--hot" style="--k: 2;" x="144" y="48" width="44" height="50" rx="8"/>
+                    <rect class="td-blk td-blk--hot" style="--k: 3;" x="206" y="30" width="44" height="30" rx="8"/>
+                    <rect class="td-blk" x="206" y="70" width="44" height="28" rx="8"/>
+                    <rect class="td-blk" x="268" y="16" width="44" height="52" rx="8"/>
+                    <rect class="td-blk td-blk--hot" style="--k: 4;" x="268" y="76" width="44" height="22" rx="8"/>
+                </svg>
             </div>
 
-
-            <!-- BFS -->
-
-            <div class="progress-item">
-
-                <div class="progress-info">
-
-                    <span>
-                        Algorithm Visualization
-                    </span>
-
-                    <strong>
-                        25%
-                    </strong>
-
-                </div>
-
-
-                <div class="progress-bar">
-
-                    <div
-                        class="progress-fill"
-                        style="width: 25%;"
-                    ></div>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Games -->
-
-            <div class="progress-item">
-
-                <div class="progress-info">
-
-                    <span>
-                        Mind Arena
-                    </span>
-
-                    <strong>
-                        10%
-                    </strong>
-
-            </div>
-
-
-                <div class="progress-bar">
-
-                    <div
-                        class="progress-fill"
-                        style="width: 10%;"
-                    ></div>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Academic -->
-
-            <div class="progress-item">
-
-                <div class="progress-info">
-
-                    <span>
-                        Academic
-                    </span>
-
-                    <strong>
-                        0%
-                    </strong>
-
-                </div>
-
-
-                <div class="progress-bar">
-
-                    <div
-                        class="progress-fill"
-                        style="width: 0%;"
-                    ></div>
-
-                </div>
-
-            </div>
-
-
-        </div>
-
-
-
-        <!-- =================================================
-             QUICK ACTIONS
-        ================================================== -->
-
-        <div class="dashboard-panel">
-
-            <div class="panel-heading">
-
-                <div>
-
-                    <p class="dashboard-label">
-                        QUICK ACCESS
-                    </p>
-
-                    <h2>
-                        Jump Back In
-                    </h2>
-
-                </div>
-
-            </div>
-
-
-            <div class="quick-actions">
-
-
-                <!-- Visual Lab -->
-
-                <a
-                    href="{% url 'visual_lab:home' %}"
-                    class="quick-action"
-                >
-
-                    <span class="quick-icon">
-                        ◈
-                    </span>
-
-                    <div>
-
-                        <strong>
-                            Visual Lab
-                        </strong>
-
-                        <small>
-                            Continue algorithm visualization
-                        </small>
-
-                </div>
-
-                    <span class="quick-arrow">
-                        →
-                    </span>
-
-                </a>
-
-
-
-                <!-- Mind Arena -->
-
-                <a
-                    href="{% url 'mind_arena:home' %}"
-                    class="quick-action"
-                >
-
-                    <span class="quick-icon">
-                        🎮
-                    </span>
-
-                    <div>
-
-                        <strong>
-                            Mind Arena
-                        </strong>
-
-                        <small>
-                            Play and practice
-                        </small>
-
-                    </div>
-
-                    <span class="quick-arrow">
-                        →
-                    </span>
-
-                </a>
-
-
-
-                <!-- Academic -->
-
-                <a
-                    href="#"
-                    class="quick-action"
-                >
-
-                    <span class="quick-icon">
-                        📚
-                    </span>
-
-                    <div>
-
-                        <strong>
-                            Academic
-                        </strong>
-
-                        <small>
-                            Courses and resources
-                        </small>
-
-                    </div>
-
-                    <span class="quick-arrow">
-                        →
-                    </span>
-
-                </a>
-
-
-
-                <!-- Skills -->
-
-                <a
-                    href="#"
-                    class="quick-action"
-                >
-
-                    <span class="quick-icon">
-                        ⚙
-                    </span>
-
-                    <div>
-
-                        <strong>
-                            Skills
-                        </strong>
-
-                        <small>
-                            Build technical skills
-                        </small>
-
-                    </div>
-
-                    <span class="quick-arrow">
-                        →
-                    </span>
-
-                </a>
-
-
-            </div>
-
-        </div>
-
-
-    </div>
-
-
-
-    <!-- =====================================================
-         UPCOMING MODULES
-    ====================================================== -->
-
-    <div class="upcoming-panel">
-
-        <div class="panel-heading">
-
-            <div>
-
-                <p class="dashboard-label">
-                    COMING NEXT
+            <div class="td-portal__body">
+                <p class="td-chip-label td-chip-label--tint">ACADEMIC</p>
+                <h3 class="td-portal__title">Manage Your Semester</h3>
+                <p class="td-portal__text">
+                    Organize courses, manage routines, track attendance,
+                    and monitor semester progress.
                 </p>
-
-                <h2>
-                    More To Explore
-                </h2>
-
+                <a href="{% url 'academic:home' %}" class="td-cta">
+                    Explore Academic
+                    <svg class="td-ico" aria-hidden="true"><use href="#td-i-arrow"></use></svg>
+                </a>
             </div>
 
-            <span class="coming-soon">
-                IN DEVELOPMENT
-            </span>
-
-        </div>
+        </article>
 
 
-        <div class="upcoming-grid">
+        <!-- SKILLS -->
 
+        <article class="td-card td-portal td-spot td-tilt td-rise" data-td-reveal style="--td-i: 1; --td-tint: var(--td-violet);">
 
-            <div class="upcoming-item">
-
-                <span class="upcoming-icon">
-                    📚
-                </span>
-
-                <div>
-
-                    <strong>
-                        Academic Hub
-                    </strong>
-
-                    <p>
-                        Courses, notes and academic resources.
-                    </p>
-
-                </div>
-
+            <div class="td-art" aria-hidden="true">
+                <svg viewBox="0 0 320 120" focusable="false">
+                    <g class="td-edges">
+                        <path pathLength="1" style="--k: 0;" d="M160 22 L92 58"/>
+                        <path pathLength="1" style="--k: 0;" d="M160 22 L228 58"/>
+                        <path pathLength="1" style="--k: 1;" d="M92 58 L52 98"/>
+                        <path pathLength="1" style="--k: 1;" d="M92 58 L132 98"/>
+                        <path pathLength="1" style="--k: 2;" d="M228 58 L188 98"/>
+                        <path pathLength="1" style="--k: 2;" d="M228 58 L268 98"/>
+                    </g>
+                    <circle class="td-node td-node--done" cx="160" cy="22" r="10"/>
+                    <circle class="td-node td-node--done" cx="92"  cy="58" r="9"/>
+                    <circle class="td-node td-node--prog" cx="228" cy="58" r="9"/>
+                    <circle class="td-node td-node--done" cx="52"  cy="98" r="8"/>
+                    <circle class="td-node td-node--prog" cx="132" cy="98" r="8"/>
+                    <circle class="td-node td-node--none" cx="188" cy="98" r="8"/>
+                    <circle class="td-node td-node--none" cx="268" cy="98" r="8"/>
+                </svg>
             </div>
 
-
-
-            <div class="upcoming-item">
-
-                <span class="upcoming-icon">
-                    💻
-                </span>
-
-                <div>
-
-                    <strong>
-                        Skills
-                    </strong>
-
-                    <p>
-                        Practice programming and technical skills.
-                    </p>
-
-                </div>
-
+            <div class="td-portal__body">
+                <p class="td-chip-label td-chip-label--tint">SKILL</p>
+                <h3 class="td-portal__title">Build Your Skills</h3>
+                <p class="td-portal__text">
+                    Track technical skills, take assessments
+                    and turn learning into projects.
+                </p>
+                <a href="{% url 'skill:home' %}" class="td-cta">
+                    Explore Skill
+                    <svg class="td-ico" aria-hidden="true"><use href="#td-i-arrow"></use></svg>
+                </a>
             </div>
 
+        </article>
 
 
-            <div class="upcoming-item">
+        <!-- VISUAL LAB -->
 
-                <span class="upcoming-icon">
-                    🧠
-                </span>
+        <article class="td-card td-portal td-spot td-tilt td-rise" data-td-reveal style="--td-i: 2; --td-tint: var(--td-blue);">
 
-                <div>
-
-                    <strong>
-                        More Visualizers
-                    </strong>
-
-                    <p>
-                        More algorithms will be added soon.
-                    </p>
-
-                </div>
-
+            <div class="td-art" aria-hidden="true">
+                <svg viewBox="0 0 320 120" focusable="false">
+                    <g class="td-wires">
+                        <path class="td-wire" style="--k: 1;" d="M40 60 L100 26"/>
+                        <path class="td-wire" style="--k: 2;" d="M40 60 L100 94"/>
+                        <path class="td-wire" style="--k: 3;" d="M100 26 L170 26"/>
+                        <path class="td-wire" style="--k: 4;" d="M100 94 L170 94"/>
+                        <path class="td-wire" style="--k: 5;" d="M170 26 L240 60"/>
+                        <path class="td-wire" style="--k: 6;" d="M170 94 L240 60"/>
+                        <path class="td-wire" style="--k: 7;" d="M240 60 L290 60"/>
+                    </g>
+                    <circle class="td-vn" style="--k: 0;" cx="40"  cy="60" r="9"/>
+                    <circle class="td-vn" style="--k: 1;" cx="100" cy="26" r="8"/>
+                    <circle class="td-vn" style="--k: 2;" cx="100" cy="94" r="8"/>
+                    <circle class="td-vn" style="--k: 3;" cx="170" cy="26" r="8"/>
+                    <circle class="td-vn" style="--k: 4;" cx="170" cy="94" r="8"/>
+                    <circle class="td-vn" style="--k: 5;" cx="240" cy="60" r="9"/>
+                    <circle class="td-vn" style="--k: 7;" cx="290" cy="60" r="8"/>
+                </svg>
             </div>
 
+            <div class="td-portal__body">
+                <p class="td-chip-label td-chip-label--tint">VISUAL LAB</p>
+                <h3 class="td-portal__title">Visualize Your Algorithms</h3>
+                <p class="td-portal__text">
+                    Understand algorithms through interactive
+                    step-by-step visualization.
+                </p>
+                <a href="{% url 'visual_lab:home' %}" class="td-cta">
+                    Explore Visual Lab
+                    <svg class="td-ico" aria-hidden="true"><use href="#td-i-arrow"></use></svg>
+                </a>
+            </div>
 
-        </div>
+        </article>
 
     </div>
 
 
 
     <!-- =====================================================
-         PLATFORM MODULES
+         ACADEMIC SHORTCUTS + PROGRESS
     ====================================================== -->
 
-    <div
-        class="dashboard-panel"
-        id="modules"
-        style="margin-top: 18px;"
-    >
+    <div class="td-row">
 
-        <div class="panel-heading">
+        <section class="td-card td-panel td-rise" data-td-reveal data-td-from="left" aria-labelledby="td-ac-title" style="--td-tint: var(--td-cyan);">
 
-            <div>
+            <div class="td-panel__head">
+                <div>
+                    <p class="td-eyebrow">ACADEMIC</p>
+                    <h2 id="td-ac-title" class="td-panel__title">Semester Toolkit</h2>
+                </div>
+                <a href="{% url 'academic:home' %}" class="td-link">
+                    Open Academic
+                    <svg class="td-ico td-link__arrow" aria-hidden="true"><use href="#td-i-arrow"></use></svg>
+                </a>
+            </div>
 
-                <p class="dashboard-label">
-                    PLATFORM
-                </p>
+            <nav class="td-tiles" aria-label="Academic shortcuts">
+                <a href="{% url 'academic:course_list' %}" class="td-tile">
+                    <span class="td-icon" aria-hidden="true"><svg class="td-ico"><use href="#td-i-book"></use></svg></span>
+                    <strong>Courses</strong>
+                </a>
+                <a href="{% url 'academic:cgpa' %}" class="td-tile">
+                    <span class="td-icon" aria-hidden="true"><svg class="td-ico"><use href="#td-i-award"></use></svg></span>
+                    <strong>CGPA</strong>
+                </a>
+                <a href="{% url 'academic:routine_list' %}" class="td-tile">
+                    <span class="td-icon" aria-hidden="true"><svg class="td-ico"><use href="#td-i-clock"></use></svg></span>
+                    <strong>Routine</strong>
+                </a>
+                <a href="{% url 'academic:assignment_list' %}" class="td-tile">
+                    <span class="td-icon" aria-hidden="true"><svg class="td-ico"><use href="#td-i-clipboard"></use></svg></span>
+                    <strong>Assignments</strong>
+                </a>
+                <a href="{% url 'academic:timeline' %}" class="td-tile">
+                    <span class="td-icon" aria-hidden="true"><svg class="td-ico"><use href="#td-i-timeline"></use></svg></span>
+                    <strong>Timeline</strong>
+                </a>
+                <a href="{% url 'academic:attendance_overview' %}" class="td-tile">
+                    <span class="td-icon" aria-hidden="true"><svg class="td-ico"><use href="#td-i-usercheck"></use></svg></span>
+                    <strong>Attendance</strong>
+                </a>
+            </nav>
 
-                <h2>
-                    Explore Student Platform
-                </h2>
+        </section>
+
+
+        <!-- PROGRESS (sample values) -->
+
+        <section class="td-card td-panel td-rise" id="progress" data-td-reveal data-td-from="right" style="--td-i: 1;" aria-labelledby="td-progress-title">
+
+            <div class="td-panel__head">
+                <div>
+                    <p class="td-eyebrow">PROGRESS</p>
+                    <h2 id="td-progress-title" class="td-panel__title">Learning Journey</h2>
+                </div>
+                <span class="td-badge" title="These values are illustrative placeholders, not live tracking.">SAMPLE DATA</span>
+            </div>
+
+            <p class="td-note">
+                Illustrative values only. Live progress tracking is not
+                connected to this dashboard yet.
+            </p>
+
+            <div class="td-bars">
+
+                <div class="td-progress" style="--td-fill: 25%; --td-i: 0;">
+                    <div class="td-progress__info">
+                        <span id="td-p1">Algorithm Visualization</span>
+                        <strong><span data-td-count="25">25</span>%</strong>
+                    </div>
+                    <div class="td-bar" role="progressbar" aria-labelledby="td-p1" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25" aria-valuetext="25% (sample value)">
+                        <div class="td-bar__fill"></div>
+                    </div>
+                </div>
+
+                <div class="td-progress" style="--td-fill: 10%; --td-i: 1;">
+                    <div class="td-progress__info">
+                        <span id="td-p2">Skills</span>
+                        <strong><span data-td-count="10">10</span>%</strong>
+                    </div>
+                    <div class="td-bar" role="progressbar" aria-labelledby="td-p2" aria-valuemin="0" aria-valuemax="100" aria-valuenow="10" aria-valuetext="10% (sample value)">
+                        <div class="td-bar__fill"></div>
+                    </div>
+                </div>
+
+                <div class="td-progress" style="--td-fill: 0%; --td-i: 2;">
+                    <div class="td-progress__info">
+                        <span id="td-p3">Academic</span>
+                        <strong><span data-td-count="0">0</span>%</strong>
+                    </div>
+                    <div class="td-bar" role="progressbar" aria-labelledby="td-p3" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% (sample value)">
+                        <div class="td-bar__fill"></div>
+                    </div>
+                </div>
 
             </div>
 
-        </div>
+        </section>
+
+    </div>
 
 
-        <div class="upcoming-grid">
 
+    <!-- =====================================================
+         VISUAL LAB + EXTRAS
+    ====================================================== -->
 
-            <a
-                href="#"
-                class="upcoming-item"
-                style="text-decoration: none;"
-            >
+    <div class="td-row">
 
-                <span class="upcoming-icon">
-                    📚
-                </span>
+        <section class="td-card td-panel td-rise" data-td-reveal data-td-from="left" aria-labelledby="td-vl-title" style="--td-tint: var(--td-blue);">
 
+            <div class="td-panel__head">
                 <div>
+                    <p class="td-eyebrow">VISUAL LAB</p>
+                    <h2 id="td-vl-title" class="td-panel__title">
+                        <span class="td-num" data-td-count="6">6</span> Visualizers
+                    </h2>
+                </div>
+                <a href="{% url 'visual_lab:home' %}" class="td-link">
+                    Open Visual Lab
+                    <svg class="td-ico td-link__arrow" aria-hidden="true"><use href="#td-i-arrow"></use></svg>
+                </a>
+            </div>
 
-                    <strong>
-                        Academic
-                    </strong>
+            <nav class="td-tiles" aria-label="Visual Lab visualizers">
+                <a href="{% url 'visual_lab:bfs' %}" class="td-tile">
+                    <span class="td-icon" aria-hidden="true"><svg class="td-ico"><use href="#td-i-graph"></use></svg></span>
+                    <strong>BFS</strong><small>Graph search</small>
+                </a>
+                <a href="{% url 'visual_lab:dfs' %}" class="td-tile">
+                    <span class="td-icon" aria-hidden="true"><svg class="td-ico"><use href="#td-i-branch"></use></svg></span>
+                    <strong>DFS</strong><small>Graph search</small>
+                </a>
+                <a href="{% url 'visual_lab:minimax' %}" class="td-tile">
+                    <span class="td-icon" aria-hidden="true"><svg class="td-ico"><use href="#td-i-tree"></use></svg></span>
+                    <strong>Minimax</strong><small>Game decisions</small>
+                </a>
+                <a href="{% url 'visual_lab:puzzle8' %}" class="td-tile">
+                    <span class="td-icon" aria-hidden="true"><svg class="td-ico"><use href="#td-i-grid"></use></svg></span>
+                    <strong>8-Puzzle</strong><small>State search</small>
+                </a>
+                <a href="{% url 'visual_lab:dijkstra' %}" class="td-tile">
+                    <span class="td-icon" aria-hidden="true"><svg class="td-ico"><use href="#td-i-route"></use></svg></span>
+                    <strong>Dijkstra</strong><small>Shortest path</small>
+                </a>
+                <a href="{% url 'visual_lab:bellman_ford' %}" class="td-tile">
+                    <span class="td-icon" aria-hidden="true"><svg class="td-ico"><use href="#td-i-pulse"></use></svg></span>
+                    <strong>Bellman-Ford</strong><small>Shortest path</small>
+                </a>
+            </nav>
 
-                    <p>
-                        Manage courses and academic resources.
-                    </p>
+        </section>
 
+
+        <div class="td-stack">
+
+            <!-- Skill actions -->
+
+            <section class="td-card td-panel td-panel--tight td-rise" data-td-reveal data-td-from="right" style="--td-i: 0; --td-tint: var(--td-violet);" aria-labelledby="td-sk-title">
+
+                <div class="td-panel__head td-panel__head--tight">
+                    <div>
+                        <p class="td-eyebrow">SKILL</p>
+                        <h2 id="td-sk-title" class="td-panel__title td-panel__title--sm">Start Building</h2>
+                    </div>
                 </div>
 
-            </a>
+                <nav class="td-actions" aria-label="Skill actions">
+                    <a href="{% url 'skill:skill_create' %}" class="td-action">
+                        <span class="td-icon td-icon--sm" aria-hidden="true"><svg class="td-ico"><use href="#td-i-plus"></use></svg></span>
+                        Add a skill
+                    </a>
+                    <a href="{% url 'skill:project_create' %}" class="td-action">
+                        <span class="td-icon td-icon--sm" aria-hidden="true"><svg class="td-ico"><use href="#td-i-folder"></use></svg></span>
+                        New project
+                    </a>
+                </nav>
 
+            </section>
 
+            <!-- Mind Arena -->
 
-            <a
-                href="#"
-                class="upcoming-item"
-                style="text-decoration: none;"
-            >
-
-                <span class="upcoming-icon">
-                    ⚙
+            <a href="{% url 'mind_arena:home' %}" class="td-card td-link-card td-rise" data-td-reveal style="--td-i: 1; --td-tint: var(--td-violet);">
+                <span class="td-icon td-icon--sm" aria-hidden="true"><svg class="td-ico"><use href="#td-i-brain"></use></svg></span>
+                <span class="td-link-card__body">
+                    <strong>Mind Arena</strong>
+                    <small>Practice and train your thinking</small>
                 </span>
-
-                <div>
-
-                    <strong>
-                        Skills
-                    </strong>
-
-                    <p>
-                        Improve your programming skills.
-                    </p>
-
-                </div>
-
+                <svg class="td-ico td-link-card__arrow" aria-hidden="true"><use href="#td-i-arrow"></use></svg>
             </a>
 
+            <!-- Coming next -->
 
-
-            <a
-                href="{% url 'visual_lab:home' %}"
-                class="upcoming-item"
-                style="text-decoration: none;"
-            >
-
-                <span class="upcoming-icon">
-                    ◈
-                </span>
-
-                <div>
-
-                    <strong>
-                        Visual Lab
-                    </strong>
-
-                    <p>
-                        Visualize algorithms interactively.
-                    </p>
-
+            <aside class="td-card td-next td-rise" data-td-reveal style="--td-i: 2; --td-tint: var(--td-cyan);" aria-label="Coming next">
+                <span class="td-icon td-icon--sm" aria-hidden="true"><svg class="td-ico"><use href="#td-i-spark"></use></svg></span>
+                <div class="td-next__body">
+                    <p class="td-eyebrow">COMING NEXT</p>
+                    <strong>More Visualizers</strong>
+                    <p>More algorithms will be added soon.</p>
                 </div>
-
-            </a>
-
-
-
-            <a
-                href="{% url 'mind_arena:home' %}"
-                class="upcoming-item"
-                style="text-decoration: none;"
-            >
-
-                <span class="upcoming-icon">
-                    🎮
-                </span>
-
-                <div>
-
-                    <strong>
-                        Mind Arena
-                    </strong>
-
-                    <p>
-                        Play games and sharpen your thinking.
-                    </p>
-
-                </div>
-
-            </a>
-
+                <span class="td-badge">IN DEVELOPMENT</span>
+            </aside>
 
         </div>
 
@@ -744,4 +509,9 @@ Dashboard | Student Platform
 
 </section>
 
+{% endblock %}
+
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
 {% endblock %}

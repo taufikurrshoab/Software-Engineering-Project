@@ -141,56 +141,71 @@
                             </div>
                         </div>
                     </div>
-                    <div class="skill-panel" data-reveal>
-                        <header class="skill-panel__head">
-                            <h2 class="sk-side-title">What to learn next</h2>
-                            <form method="post" action="{% url 'skill:recommendations_refresh' %}">
-                                {% csrf_token %}
-                                <button type="submit" class="skill-link-btn">Refresh AI suggestions</button>
-                            </form>
-                        </header>
-                        {% if recommendations %}
-                        <ul class="skill-recs">
-                            {% for rec in recommendations %}
-                            <li class="skill-rec">
-                                <span class="skill-rec__from">Based on <strong>{{ rec.skill.name }}</strong>
-                                    <span class="skill-rec__level">{{ rec.skill.get_status_display }} · {{ rec.skill.progress }}%</span>
-                                </span>
-                                {% if rec.items %}
-                                <div class="skill-rec__items">
-                                    {% for item in rec.items %}
-                                    <div class="skill-rec__item">
-                                        <div>
-                                            <strong>{{ item.name }}</strong>
-                                            <p>{{ item.reason }}</p>
-                                        </div>
-                                        <a href="{% url 'skill:skill_create' %}?name={{ item.name|urlencode }}&amp;parent={{ rec.skill.pk }}"
-                                           class="skill-chip" aria-label="Add {{ item.name }} under {{ rec.skill.name }}">+ Add</a>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                                {% else %}
-                                <p class="skill-muted">No suggestions available yet. Try refreshing AI suggestions.</p>
-                                {% endif %}
-                            </li>
-                            {% endfor %}
-                        </ul>
-                        <p class="skill-hint">AI-generated next steps based on each skill and its current proficiency. Nothing is added unless you choose it.</p>
-                        {% else %}
-                        <p class="skill-muted">Add a skill to get personalized AI suggestions for what to learn next.</p>
-                        {% endif %}
-                    </div>
+
 
                 </aside>
             </div>
 
-            <!-- AI skill assessments -->
-            <div class="skill-panel" data-reveal>
-                <header class="skill-panel__head">
-                    <h2>AI skill assessments</h2>
-                    <span class="skill-muted">5 adaptive questions per attempt</span>
-                </header>
-                <div class="skill-assessment-list">
+                    <details class="skill-panel skill-accordion skill-recommendations-panel" data-reveal>
+                        <summary class="skill-accordion__summary">
+                            <span class="skill-accordion__title">
+                                <strong>What to learn next</strong>
+                                <small>AI-powered recommendations based on your skills</small>
+                            </span>
+                            <span class="skill-accordion__toggle" aria-hidden="true">Expand</span>
+                        </summary>
+                        <div class="skill-accordion__content">
+                            <header class="skill-panel__head skill-accordion__actions">
+                                <span class="skill-muted">Choose a suggestion to add it to your learning path.</span>
+                                <form method="post" action="{% url 'skill:recommendations_refresh' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="skill-link-btn">Refresh AI suggestions</button>
+                                </form>
+                            </header>
+                            {% if recommendations %}
+                            <ul class="skill-recs">
+                                {% for rec in recommendations %}
+                                <li class="skill-rec">
+                                    <span class="skill-rec__from">Based on <strong>{{ rec.skill.name }}</strong>
+                                        <span class="skill-rec__level">{{ rec.skill.get_status_display }} · {{ rec.skill.progress }}%</span>
+                                    </span>
+                                    {% if rec.items %}
+                                    <div class="skill-rec__items">
+                                        {% for item in rec.items %}
+                                        <div class="skill-rec__item">
+                                            <div>
+                                                <strong>{{ item.name }}</strong>
+                                                <p>{{ item.reason }}</p>
+                                            </div>
+                                            <a href="{% url 'skill:skill_create' %}?name={{ item.name|urlencode }}&amp;parent={{ rec.skill.pk }}"
+                                               class="skill-chip" aria-label="Add {{ item.name }} under {{ rec.skill.name }}">+ Add</a>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    <p class="skill-muted">No suggestions available yet. Try refreshing AI suggestions.</p>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            <p class="skill-hint">AI-generated next steps based on each skill and its current proficiency. Nothing is added unless you choose it.</p>
+                            {% else %}
+                            <p class="skill-muted">Add a skill to get personalized AI suggestions for what to learn next.</p>
+                            {% endif %}
+                        </div>
+                    </details>
+
+            <!-- AI skill assessments: collapsed by default to keep the page compact -->
+            <details class="skill-panel skill-accordion" data-reveal>
+                <summary class="skill-accordion__summary">
+                    <span class="skill-accordion__title">
+                        <strong>AI skill assessments</strong>
+                        <small>5 adaptive questions per attempt</small>
+                    </span>
+                    <span class="skill-accordion__toggle" aria-hidden="true">Expand</span>
+                </summary>
+                <div class="skill-accordion__content">
+                    <div class="skill-assessment-list">
                     {% for item in skill_assessments %}
                     <article class="skill-assessment-row">
                         <div class="skill-assessment-row__info">
@@ -221,15 +236,21 @@
                     {% empty %}
                     <p class="skill-muted">Add a skill to start your first AI assessment.</p>
                     {% endfor %}
+                    </div>
                 </div>
-            </div>
+            </details>
 
             {% if assessment_history %}
-            <div class="skill-panel" data-reveal>
-                <header class="skill-panel__head">
-                    <h2>Recent assessment history</h2>
-                </header>
-                <div class="skill-assessment-history">
+            <details class="skill-panel skill-accordion" data-reveal>
+                <summary class="skill-accordion__summary">
+                    <span class="skill-accordion__title">
+                        <strong>Recent assessment history</strong>
+                        <small>Review your previous assessment results</small>
+                    </span>
+                    <span class="skill-accordion__toggle" aria-hidden="true">Expand</span>
+                </summary>
+                <div class="skill-accordion__content">
+                    <div class="skill-assessment-history">
                     {% for attempt in assessment_history %}
                     <a class="skill-history-row" href="{% url 'skill:assessment_result' attempt.pk %}">
                         <span><strong>{{ attempt.skill.name }}</strong>
@@ -238,16 +259,25 @@
                         <span class="skill-history-arrow" aria-hidden="true">›</span>
                     </a>
                     {% endfor %}
+                    </div>
                 </div>
-            </div>
+            </details>
             {% endif %}
 
-            <!-- Project showcase -->
-            <div class="skill-panel" data-reveal>
-                <header class="skill-panel__head">
-                    <h2>Project showcase</h2>
-                     <a href="{% url 'skill:project_create' %}" class="skill-btn skill-btn--small skill-btn--primary">+ Add project</a>
-                </header>
+            <!-- Project showcase: collapsed by default -->
+            <details class="skill-panel skill-accordion" data-reveal>
+                <summary class="skill-accordion__summary">
+                    <span class="skill-accordion__title">
+                        <strong>Project showcase</strong>
+                        <small>Your projects and practical work</small>
+                    </span>
+                    <span class="skill-accordion__toggle" aria-hidden="true">Expand</span>
+                </summary>
+                <div class="skill-accordion__content">
+                    <div class="skill-panel__head skill-accordion__actions">
+                        <span class="skill-muted">Connect your projects to the skills you are building.</span>
+                        <a href="{% url 'skill:project_create' %}" class="skill-btn skill-btn--small skill-btn--primary">+ Add project</a>
+                    </div>
 
                 {% if projects %}
                 <div class="skill-projects">
@@ -275,7 +305,8 @@
                     <a href="{% url 'skill:project_create' %}" class="skill-btn skill-btn--ghost skill-btn--small">Add your first project</a>
                 </div>
                 {% endif %}
-            </div>
+                </div>
+            </details>
 
         </div>
     </section>
