@@ -1,18 +1,14 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Visual Lab | ThinkSphere{% endblock %}
+{% block title %}Visualizer | Delta{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'visual_lab/home.css' %}">
 {% endblock %}
 
 {% block content %}
-{% comment %}
-  Confirmed URL names: visual_lab:bfs, dfs, dijkstra, bellman_ford, minimax, puzzle8.
-  visual_lab:astar is a guess. If that name does not exist, the A* node falls back to
-  visual_lab:puzzle8 (the 8-puzzle visualizer, which runs A*). Replace with the real A* route if you have one.
-{% endcomment %}
+
 {% url 'visual_lab:astar' as u_astar %}
 {% if not u_astar %}{% url 'visual_lab:puzzle8' as u_astar %}{% endif %}
 
@@ -22,8 +18,8 @@
     <section class="vlt-stage" id="vlt-stage" aria-labelledby="vlt-title">
         <header class="vlt-head" id="vlt-head">
             {% if user.is_authenticated %}<p class="vlt-hello">Welcome back, {{ user.username }}</p>{% endif %}
-            <h1 class="vlt-title" id="vlt-title">Visual Lab</h1>
-            <p class="vlt-hint">Select any node. Press Esc to return to the tree.</p>
+            <h1 class="vlt-title" id="vlt-title">Visualizer</h1>
+            <p class="vlt-hint">Select any node to view its details.</p>
         </header>
 
         <div class="vlt-treewrap">

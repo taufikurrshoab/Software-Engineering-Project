@@ -4,8 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}ThinkSphere{% endblock %}</title>
-
+    <title>{% block title %}Delta{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/site.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -15,9 +17,52 @@
     <header class="site-header">
         <nav class="nav" aria-label="Main">
 
-            <a href="/" class="brand">
-                <span class="brand-mark" aria-hidden="true">‹›</span>
-                <span class="brand-name">ThinkSphere</span>
+            <a href="/" class="brand" aria-label="DELTA home">
+                <svg class="brand-logo" viewBox="0 0 48 48" width="40" height="40"
+                     aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="dl-grad" gradientUnits="userSpaceOnUse" x1="6" y1="40" x2="42" y2="8">
+                      <stop offset="0" stop-color="#22d3ee"/>
+                      <stop offset="0.5" stop-color="#3b82f6"/>
+                      <stop offset="1" stop-color="#8b5cf6"/>
+                    </linearGradient>
+                    <radialGradient id="dl-glow">
+                      <stop offset="0" stop-color="#ffffff"/>
+                      <stop offset="0.22" stop-color="#67e8f9" stop-opacity="0.95"/>
+                      <stop offset="0.55" stop-color="#8b5cf6" stop-opacity="0.4"/>
+                      <stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/>
+                    </radialGradient>
+                    <clipPath id="dl-back"><rect x="-10" y="-10" width="68" height="38"/></clipPath>
+                    <clipPath id="dl-front"><rect x="-10" y="28" width="68" height="30"/></clipPath>
+                    <g id="dl-sat">
+                      <circle cx="24" cy="28" r="5.5" fill="url(#dl-glow)"/>
+                      <circle cx="24" cy="28" r="1.35" fill="#ffffff"/>
+                    </g>
+                  </defs>
+
+                  <!-- Orbit back half (triangler pichone) -->
+                  <g transform="rotate(-22 24 28)">
+                    <g clip-path="url(#dl-back)">
+                      <ellipse cx="24" cy="28" rx="21" ry="7.5" fill="none"
+                               stroke="url(#dl-grad)" stroke-width="1" opacity="0.35"/>
+                      <g class="dl-px"><g class="dl-py"><use href="#dl-sat"/></g></g>
+                    </g>
+                  </g>
+
+                  <!-- Stationary Delta -->
+                  <path d="M24 8 L41 37 H7 Z" fill="#0b1222" stroke="url(#dl-grad)"
+                        stroke-width="1.8" stroke-linejoin="round"/>
+
+                  <!-- Orbit front half (triangler samne) -->
+                  <g transform="rotate(-22 24 28)">
+                    <g clip-path="url(#dl-front)">
+                      <ellipse cx="24" cy="28" rx="21" ry="7.5" fill="none"
+                               stroke="url(#dl-grad)" stroke-width="1.25"/>
+                      <g class="dl-px"><g class="dl-py"><use href="#dl-sat"/></g></g>
+                    </g>
+                  </g>
+                </svg>
+                <span class="brand-name">DELTA</span>
             </a>
 
             <!-- Mobile menu toggle (CSS only, no JavaScript) -->
@@ -42,7 +87,7 @@
                     </li>
                     <li>
 
-                        <a href="{% url 'visual_lab:home' %}" class="nav-link{% if request.resolver_match.namespace == 'visual_lab' %} is-active{% endif %}">Visual Lab</a>
+                        <a href="{% url 'visual_lab:home' %}" class="nav-link{% if request.resolver_match.namespace == 'visual_lab' %} is-active{% endif %}">Visualizer</a>
                        
                     </li>
                 </ul>
