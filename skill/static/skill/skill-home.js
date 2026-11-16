@@ -30,6 +30,15 @@
 
     root.classList.add("sk-js");
 
+    // Start with no learning path selected; the selected tree skill controls visibility.
+    var initialLearningPanel = page.querySelector("[data-next-learning]");
+    if (initialLearningPanel) {
+        all("[data-skill-recommendations]", initialLearningPanel).forEach(function (section) {
+            section.hidden = true;
+            section.style.setProperty("display", "none", "important");
+        });
+    }
+
     if (motion) {
         root.classList.add("sk-motion");
         var revealObserver = new IntersectionObserver(function (entries) {
@@ -143,6 +152,7 @@
         var assessForm = panel.querySelector("[data-d-assess-form]");
         var editLink = panel.querySelector("[data-d-edit]");
         var childLink = panel.querySelector("[data-d-child]");
+        var learningPanel = page.querySelector("[data-next-learning]");
 
         // Project parts
         var pImage = panel.querySelector("[data-p-image]");
@@ -196,6 +206,25 @@
             assessForm.action = data.assessUrl;
             editLink.href = data.editUrl;
             childLink.href = data.childUrl;
+            if (learningPanel) {
+                var emptyLearning = learningPanel.querySelector("[data-next-learning-empty]");
+                var matchedRecommendation = false;
+                var selectedSkillId = String(data.skillId || node.getAttribute("data-skill-id") || "").trim();
+
+                all("[data-skill-recommendations]", learningPanel).forEach(function (section) {
+                    var recommendationSkillId = String(
+                        section.getAttribute("data-skill-recommendations") || ""
+                    ).trim();
+                    var isSelected = selectedSkillId !== "" && recommendationSkillId === selectedSkillId;
+
+                    // Set both hidden and inline display. This prevents theme CSS from
+                    // accidentally displaying every recommendation section.
+                    section.hidden = !isSelected;
+                    section.style.setProperty("display", isSelected ? "grid" : "none", "important");
+                    if (isSelected) { matchedRecommendation = true; }
+                });
+                if (emptyLearning) { emptyLearning.hidden = matchedRecommendation; }
+            }
 
             projectBody.hidden = true;
             skillBody.hidden = false;
@@ -205,6 +234,14 @@
         function selectProject(node) {
             clearSelection();
             node.classList.add("is-selected");
+            if (learningPanel) {
+                var emptyLearning = learningPanel.querySelector("[data-next-learning-empty]");
+                if (emptyLearning) { emptyLearning.hidden = false; }
+                all("[data-skill-recommendations]", learningPanel).forEach(function (section) {
+                    section.hidden = true;
+                    section.style.setProperty("display", "none", "important");
+                });
+            }
 
             var data = node.dataset;
             pName.textContent = data.name;
@@ -257,7 +294,7 @@
                 event.preventDefault();
                 selectProject(projectNode);
             }
-        });
+        }, true);
 
     }
 

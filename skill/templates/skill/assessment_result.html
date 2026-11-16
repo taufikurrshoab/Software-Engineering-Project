@@ -15,8 +15,8 @@
       <div class="assessment-score">{{ assessment.score|floatformat:0 }}<span>%</span></div>
       <p class="skill-lead">Your weighted demonstrated-knowledge score</p>
       <div class="assessment-result-stats">
-        <div><strong>{{ correct_count }}/{{ assessment.total_questions }}</strong><span>Correct answers</span></div>
-        <div><strong>{{ assessment.completed_at|date:"M d, Y" }}</strong><span>Completed</span></div>
+        <div><strong>{{ correct_count }}/4</strong><span>MCQs correct</span></div>
+        <div><strong>{% if coding_question %}{{ coding_question.coding_score }}/100{% else %}—{% endif %}</strong><span>Coding task</span></div>
       </div>
       <p class="assessment-result-note">Your skill proficiency has been updated automatically. You can retest any time from your Skill dashboard.</p>
       <div class="assessment-result-actions">
@@ -32,12 +32,19 @@
     <article class="assessment-review">
       <div class="assessment-review__head">
         <strong>Q{{ q.question_number }} · {{ q.topic|default:"General" }}</strong>
-        {% if q.is_correct %}<span class="assessment-correct">Correct</span>{% else %}<span class="assessment-incorrect">Incorrect</span>{% endif %}
+        {% if q.question_type == "coding" %}<span class="assessment-difficulty">AI score: {{ q.coding_score }}/100</span>
+        {% elif q.is_correct %}<span class="assessment-correct">Correct</span>{% else %}<span class="assessment-incorrect">Incorrect</span>{% endif %}
       </div>
       <p>{{ q.question_text|linebreaksbr }}</p>
-      <div class="assessment-review__answer">Your answer: {{ q.selected_answer }}</div>
-      {% if not q.is_correct %}<div class="assessment-review__answer">Correct answer: {{ q.correct_answer }}</div>{% endif %}
-      <p class="assessment-explanation">Explanation: {{ q.explanation }}</p>
+      {% if q.question_type == "coding" %}
+        <p class="assessment-review__answer">Language: {{ q.coding_language }}</p>
+        <pre class="assessment-code-review"><code>{{ q.coding_submission }}</code></pre>
+        <p class="assessment-explanation">AI feedback: {{ q.coding_feedback }}</p>
+      {% else %}
+        <div class="assessment-review__answer">Your answer: {{ q.selected_answer }}</div>
+        {% if not q.is_correct %}<div class="assessment-review__answer">Correct answer: {{ q.correct_answer }}</div>{% endif %}
+        <p class="assessment-explanation">Explanation: {{ q.explanation }}</p>
+      {% endif %}
       <span class="assessment-difficulty">{{ q.get_difficulty_display }}</span>
     </article>
     {% endfor %}

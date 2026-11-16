@@ -9,11 +9,56 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from .adaptive import next_difficulty, weighted_percentage
-from .assessment_services import generate_question
+from .assessment_services import generate_question, generate_coding_task, grade_coding_submission
 from .models import Assessment, AssessmentQuestion, Skill
 
 
 QUESTION_COUNT = 5
+
+
+def _skill_assessment_context(skill):
+    """Build the full parent-to-child skill path and detect its language.
+
+    Child skills such as 'Loops' inherit the language from a parent such as
+    'C++' or 'Python', preventing the model from guessing from the child name.
+    """
+    nodes = []
+    node = skill
+    seen = set()
+    while node is not None and node.pk not in seen:
+        seen.add(node.pk)
+        nodes.append(node.name.strip())
+        node = node.parent
+    nodes.reverse()
+    path = " > ".join(nodes)
+
+    aliases = [
+        ("C++", ("c++", "cpp", "c plus plus")),
+        ("C#", ("c#", "c sharp", "csharp")),
+        ("JavaScript", ("javascript", "js")),
+        ("TypeScript", ("typescript", "ts")),
+        ("Python", ("python", "py")),
+        ("Java", ("java",)),
+        ("C", ("c",)),
+        ("Go", ("golang", "go")),
+        ("Rust", ("rust",)),
+        ("PHP", ("php",)),
+        ("Ruby", ("ruby",)),
+        ("Kotlin", ("kotlin",)),
+        ("Swift", ("swift",)),
+        ("SQL", ("sql",)),
+    ]
+    import re
+    language = None
+    for canonical, terms in aliases:
+        for term in terms:
+            pattern = r"(?<![a-z0-9])" + re.escape(term) + r"(?![a-z0-9])"
+            if re.search(pattern, path, flags=re.IGNORECASE):
+                language = canonical
+                break
+        if language:
+            break
+    return path, language
 
 
 def _ensure_question(assessment):
@@ -26,21 +71,34 @@ def _ensure_question(assessment):
     previous_questions = list(
         assessment.questions.values_list("question_text", flat=True)
     )
-    generated = generate_question(
-        assessment.skill.name,
-        assessment.next_difficulty,
-        previous_questions=previous_questions,
-    )
+    skill_context, programming_language = _skill_assessment_context(assessment.skill)
+    is_coding = question_number == assessment.total_questions and assessment.total_questions >= 5
+    if is_coding:
+        generated = generate_coding_task(
+            skill_context, assessment.next_difficulty,
+            programming_language=programming_language,
+        )
+        values = {
+            "question_type": "coding", "topic": generated["topic"],
+            "question_text": generated["prompt"], "options": [],
+            "correct_index": 0, "explanation": "Your submitted code will be reviewed by the AI grader.",
+            "coding_language": generated["language"],
+        }
+    else:
+        generated = generate_question(
+            skill_context, assessment.next_difficulty,
+            previous_questions=previous_questions,
+            programming_language=programming_language,
+        )
+        values = {
+            "question_type": "mcq", "topic": generated["topic"],
+            "question_text": generated["question"], "options": generated["options"],
+            "correct_index": generated["correct_index"], "explanation": generated["explanation"],
+        }
     try:
         return AssessmentQuestion.objects.create(
-            assessment=assessment,
-            question_number=question_number,
-            topic=generated["topic"],
-            question_text=generated["question"],
-            options=generated["options"],
-            correct_index=generated["correct_index"],
-            explanation=generated["explanation"],
-            difficulty=assessment.next_difficulty,
+            assessment=assessment, question_number=question_number,
+            difficulty=assessment.next_difficulty, **values,
         )
     except IntegrityError:
         return assessment.questions.get(question_number=question_number)
@@ -108,6 +166,49 @@ def assessment_answer(request, assessment_id, question_id):
         question_number=assessment.answered_questions + 1,
     )
 
+    if question.question_type == "coding":
+        submission = request.POST.get("code_submission", "").strip()
+        if not submission:
+            messages.error(request, "Please enter your code before submitting.")
+            return redirect("skill:assessment_take", assessment_id=assessment.pk)
+        if len(submission) > 20000:
+            messages.error(request, "Your code is too long. Keep it under 20,000 characters.")
+            return redirect("skill:assessment_take", assessment_id=assessment.pk)
+        try:
+            skill_context, _ = _skill_assessment_context(assessment.skill)
+            coding_score, feedback = grade_coding_submission(
+                skill_context, question.coding_language,
+                question.question_text, submission,
+            )
+        except Exception as exc:
+            messages.error(request, f"Your code was not submitted because AI marking failed: {exc}")
+            return redirect("skill:assessment_take", assessment_id=assessment.pk)
+        with transaction.atomic():
+            question.coding_submission = submission
+            question.coding_score = coding_score
+            question.coding_feedback = feedback
+            question.is_correct = coding_score >= 60
+            question.selected_index = 0
+            question.save(update_fields=["coding_submission", "coding_score", "coding_feedback", "is_correct", "selected_index"])
+            assessment.answered_questions += 1
+            finished = assessment.answered_questions >= assessment.total_questions
+            if finished:
+                assessment.status = Assessment.Status.COMPLETED
+                assessment.completed_at = timezone.now()
+                assessment.score = weighted_percentage(assessment.questions.filter(selected_index__isnull=False))
+            assessment.save()
+            if finished:
+                skill = assessment.skill
+                was_completed = skill.is_completed
+                skill.progress = int(round(float(assessment.score)))
+                skill.save()
+                if skill.is_completed and not was_completed:
+                    request.session["skill_just_completed"] = skill.pk
+        if finished:
+            messages.success(request, f"Assessment complete! Coding task score: {coding_score}/100.")
+            return redirect("skill:assessment_result", assessment_id=assessment.pk)
+        return redirect("skill:assessment_take", assessment_id=assessment.pk)
+
     raw_choice = request.POST.get("choice", "")
     try:
         selected_index = int(raw_choice)
@@ -174,11 +275,13 @@ def assessment_result(request, assessment_id):
         status=Assessment.Status.COMPLETED,
     )
     questions = assessment.questions.all()
-    correct_count = questions.filter(is_correct=True).count()
+    correct_count = questions.filter(question_type="mcq", is_correct=True).count()
+    coding_question = questions.filter(question_type="coding").first()
     return render(request, "skill/assessment_result.html", {
         "assessment": assessment,
         "questions": questions,
         "correct_count": correct_count,
+        "coding_question": coding_question,
     })
 
 

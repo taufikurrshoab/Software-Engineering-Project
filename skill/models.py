@@ -203,9 +203,15 @@ class AssessmentQuestion(models.Model):
         Assessment, on_delete=models.CASCADE, related_name="questions"
     )
     question_number = models.PositiveSmallIntegerField()
+    QUESTION_TYPES = [("mcq", "Multiple choice"), ("coding", "Coding task")]
+    question_type = models.CharField(max_length=10, choices=QUESTION_TYPES, default="mcq")
     topic = models.CharField(max_length=100, blank=True)
     question_text = models.TextField()
-    options = models.JSONField()
+    options = models.JSONField(default=list, blank=True)
+    coding_language = models.CharField(max_length=40, blank=True)
+    coding_submission = models.TextField(blank=True)
+    coding_score = models.PositiveSmallIntegerField(null=True, blank=True)
+    coding_feedback = models.TextField(blank=True)
     correct_index = models.PositiveSmallIntegerField()
     explanation = models.TextField()
     difficulty = models.CharField(max_length=20, choices=DIFFICULTY_CHOICES)

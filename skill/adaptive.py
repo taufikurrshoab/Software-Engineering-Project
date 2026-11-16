@@ -17,7 +17,9 @@ def weighted_percentage(questions):
     for question in questions:
         weight = DIFFICULTY_POINTS[question.difficulty]
         total_weight += weight
-        if question.is_correct:
+        if getattr(question, "question_type", "mcq") == "coding":
+            earned_weight += weight * ((question.coding_score or 0) / 100)
+        elif question.is_correct:
             earned_weight += weight
     if not total_weight:
         return 0

@@ -12,11 +12,11 @@
     <a href="{% url 'skill:home' %}" class="skill-back">&larr; Back to skills</a>
     <div class="assessment-card">
       <div class="assessment-topline">
-        <span class="skill-eyebrow">Adaptive AI assessment</span>
+        <span class="skill-eyebrow">{% if question.question_type == "coding" %}Practical coding challenge{% else %}Adaptive AI assessment{% endif %}</span>
         <span class="assessment-difficulty">{% if question %}{{ question.get_difficulty_display }}{% else %}Preparing{% endif %}</span>
       </div>
       <h1 class="skill-title">{{ assessment.skill.name }}</h1>
-      <p class="skill-lead">Answer {{ assessment.total_questions }} questions. The next question adapts to your previous answer.</p>
+      <p class="skill-lead">Four adaptive knowledge checks followed by a practical coding challenge. Your fifth answer is reviewed by AI.</p>
       <div class="assessment-progress">
         <div class="assessment-progress__labels">
           <span>Question {{ assessment.answered_questions|add:1 }} of {{ assessment.total_questions }}</span>
@@ -29,21 +29,39 @@
 
       {% if question %}
       <div class="assessment-question">
-        <div class="assessment-topic">{{ question.topic|default:"Knowledge check" }}</div>
-        <h2>{{ question.question_text|linebreaksbr }}</h2>
-        <form method="post" action="{% url 'skill:assessment_answer' assessment.pk question.pk %}">
-          {% csrf_token %}
-          <div class="assessment-options">
-            {% for option in question.options %}
-            <label class="assessment-option">
-              <input type="radio" name="choice" value="{{ forloop.counter0 }}" required>
-              <span class="assessment-option__letter">{{ forloop.counter|add:0 }}</span>
-              <span>{{ option|linebreaksbr }}</span>
-            </label>
-            {% endfor %}
+        <div class="assessment-question__meta">
+          <span class="assessment-topic">{{ question.topic|default:"Knowledge check" }}</span>
+          <span class="assessment-question__number">QUESTION {{ question.question_number }} / {{ assessment.total_questions }}</span>
+        </div>
+        {% if question.question_type == "coding" %}
+          <div class="assessment-coding-intro">
+            <span class="assessment-code-language">{{ question.coding_language }}</span>
+            <h2>Put your knowledge into practice</h2>
+            <div class="assessment-coding-prompt">{{ question.question_text|linebreaks }}</div>
           </div>
-          <button type="submit" class="skill-btn skill-btn--primary assessment-submit">Submit answer</button>
-        </form>
+          <form method="post" action="{% url 'skill:assessment_answer' assessment.pk question.pk %}">
+            {% csrf_token %}
+            <label class="assessment-code-label" for="code-submission">Your solution</label>
+            <textarea id="code-submission" name="code_submission" class="assessment-code-editor" rows="14" maxlength="20000" spellcheck="false" placeholder="# Write your solution here..." required></textarea>
+            <p class="assessment-code-hint">The AI grader awards partial credit for correctness, logic, edge cases and readability. Code is reviewed, not executed.</p>
+            <button type="submit" class="skill-btn skill-btn--primary assessment-submit">Submit code for AI marking</button>
+          </form>
+        {% else %}
+          <h2>{{ question.question_text|linebreaksbr }}</h2>
+          <form method="post" action="{% url 'skill:assessment_answer' assessment.pk question.pk %}">
+            {% csrf_token %}
+            <div class="assessment-options">
+              {% for option in question.options %}
+              <label class="assessment-option">
+                <input type="radio" name="choice" value="{{ forloop.counter0 }}" required>
+                <span class="assessment-option__letter">{% cycle 'A' 'B' 'C' 'D' %}</span>
+                <span>{{ option|linebreaksbr }}</span>
+              </label>
+              {% endfor %}
+            </div>
+            <button type="submit" class="skill-btn skill-btn--primary assessment-submit">Submit answer</button>
+          </form>
+        {% endif %}
       </div>
       {% else %}
       <div class="assessment-wait">
