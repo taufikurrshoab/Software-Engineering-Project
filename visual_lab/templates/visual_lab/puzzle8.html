@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}A* Search | Visual Lab | ThinkSphere{% endblock %}
+{% block title %}A* Search | Visualizer | Delta{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'visual_lab/astar.css' %}">
@@ -12,7 +12,7 @@
     <div class="as-container">
 
         <header class="as-header">
-            <a class="as-back" href="{% url 'visual_lab:home' %}">&larr; Back to Visual Lab</a>
+            <a class="as-back" href="{% url 'visual_lab:home' %}">&larr; Back to Visualizer</a>
             <h1 class="as-title">A* Search</h1>
             <p class="as-subtitle">Find the cheapest path by combining the cost so far with an estimate of the cost to go.</p>
         </header>

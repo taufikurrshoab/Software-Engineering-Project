@@ -47,11 +47,11 @@
             ]
         },
         {
-            n: 'Visual Lab',
+            n: 'Visualizer',
             href: $('#stage').dataset.visual,
             t: 'Visualize Your Algorithms',
             d: 'Understand computer science concepts through interactive algorithm visualizations.',
-            c: 'Explore Visual Lab',
+            c: 'Explore Visualizer',
             k: [
                 ['Graph Algorithms', 'BFS, DFS, Dijkstra, Bellman-Ford and A*.'],
                 ['Searching & Sorting', 'See how classic methods find and order data.'],
