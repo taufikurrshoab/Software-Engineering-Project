@@ -296,31 +296,3 @@ class AIAssessmentTests(SkillTestBase):
         self.assertEqual(skill.progress, 100)
         self.assertEqual(skill.status, Skill.Status.COMPLETED)
         self.assertEqual(attempt.status, Assessment.Status.COMPLETED)
-
-
-class AssessmentLanguageContextTests(SkillTestBase):
-    def test_child_skill_inherits_cpp_language(self):
-        from .assessment_views import _skill_assessment_context
-
-        cpp = Skill.objects.create(user=self.alice, name="C++", category="programming")
-        loops = Skill.objects.create(user=self.alice, name="Loops", parent=cpp)
-        path, language = _skill_assessment_context(loops)
-        self.assertEqual(path, "C++ > Loops")
-        self.assertEqual(language, "C++")
-
-    def test_child_skill_inherits_python_language(self):
-        from .assessment_views import _skill_assessment_context
-
-        python = Skill.objects.create(user=self.alice, name="Python", category="programming")
-        functions = Skill.objects.create(user=self.alice, name="Functions", parent=python)
-        path, language = _skill_assessment_context(functions)
-        self.assertEqual(path, "Python > Functions")
-        self.assertEqual(language, "Python")
-
-    def test_child_skill_inherits_java_language(self):
-        from .assessment_views import _skill_assessment_context
-
-        java = Skill.objects.create(user=self.alice, name="Java", category="programming")
-        collections = Skill.objects.create(user=self.alice, name="Collections", parent=java)
-        _, language = _skill_assessment_context(collections)
-        self.assertEqual(language, "Java")

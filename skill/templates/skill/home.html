@@ -4,15 +4,19 @@
 {% block title %}Skill | ThinkSphere{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'skill/skill-home.css' %}?v=20261112b">
-<link rel="stylesheet" href="{% static 'skill/assessment.css' %}?v=20261112b">
+<link rel="stylesheet" href="{% static 'skill/skill-home.css' %}">
+<link rel="stylesheet" href="{% static 'skill/assessment.css' %}">
+<link rel="stylesheet" href="{% static 'skill/skill-dashboard.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="skill-page">
-    
-
     {% if configured %}
+    {# Collapses the accordions before first paint. Removed again if skill-dashboard.js never loads, so content is never trapped. #}
+    <script>
+        document.documentElement.classList.add("skd-js");
+        setTimeout(function () { if (!window.__skdReady) { document.documentElement.classList.remove("skd-js"); } }, 4000);
+    </script>
 
     <!-- Dashboard -->
     <section class="skill-section skill-dashboard">
@@ -44,17 +48,29 @@
             </div>
             {% endif %}
 
-            <div class="sk-workspace">
+            <div class="skd-stats" data-reveal>
+                <ul class="sk-stats skd-stats__list" aria-label="Skill summary">
+                    <li class="sk-stat skd-stat skd-stat--total"><strong>{{ stats.total }}</strong><span>Skills</span></li>
+                    <li class="sk-stat skd-stat skd-stat--done"><strong>{{ stats.completed }}</strong><span>Completed</span></li>
+                    <li class="sk-stat skd-stat skd-stat--progress"><strong>{{ stats.in_progress }}</strong><span>In progress</span></li>
+                    <li class="sk-stat skd-stat skd-stat--avg" style="--skd-avg: {{ stats.average|floatformat:0 }}">
+                        <strong>{{ stats.average }}%</strong><span>Average</span>
+                        <i class="skd-stat__bar" aria-hidden="true"></i>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sk-workspace skd-workspace">
 
                 <!-- Tree -->
-                <div class="skill-panel" data-reveal>
+                <div class="skill-panel skd-tree-panel" data-reveal>
                     <header class="skill-panel__head">
                         <h2>Skill tree</h2>
                         {% if tree %}
                         <div class="skill-panel__tools">
                             <button type="button" class="skill-link-btn" data-expand-all>Expand all</button>
                             <button type="button" class="skill-link-btn" data-collapse-all>Collapse all</button>
-                            <!-- <button type="button" class="skill-link-btn" data-toggle-projects aria-pressed="false">Hide projects</button> -->
+                        </div>
                         {% endif %}
                     </header>
 
@@ -70,7 +86,7 @@
                         <li><i class="sk-dot sk-dot--completed"></i> Completed</li>
                         <li><i class="sk-dot sk-dot--in_progress"></i> In progress</li>
                         <li><i class="sk-dot sk-dot--not_started"></i> Not started</li>
-                         <li><i class="sk-dot sk-dot--project"></i> Project</li>
+                        <li><i class="sk-dot sk-dot--project"></i> Project</li>
                     </ul>
                     {% else %}
                     <div class="skill-empty">
@@ -80,20 +96,11 @@
                     {% endif %}
                 </div>
 
-                <!-- Sidebar -->
-                <aside class="sk-side">
-
-                    <ul class="sk-stats" data-reveal>
-                        <li class="sk-stat"><strong>{{ stats.total }}</strong><span>Skills</span></li>
-                        <li class="sk-stat"><strong>{{ stats.completed }}</strong><span>Completed</span></li>
-                        <li class="sk-stat"><strong>{{ stats.in_progress }}</strong><span>In progress</span></li>
-                        <li class="sk-stat"><strong>{{ stats.average }}%</strong><span>Average</span></li>
-                    </ul>
-
-                                        <!-- Selected skill or project (filled by skill-home.js) -->
-                    <div class="skill-panel sk-detail" data-reveal data-detail>
+                <!-- Selected skill or project (filled by skill-home.js) -->
+                <aside class="skd-side" aria-label="Selected item">
+                    <div class="skill-panel sk-detail skd-selected" data-reveal data-detail>
                         <h2 class="sk-side-title">Selected</h2>
-                        <p class="skill-muted" data-detail-empty>Select a skill or project in the tree to see its details.</p>
+                        <p class="skill-muted skd-selected__empty" data-detail-empty>Select a skill or project in the tree to see its details.</p>
 
                         <div class="sk-detail__body" data-detail-body hidden>
                             <div class="sk-detail__head">
@@ -141,132 +148,227 @@
                             </div>
                         </div>
                     </div>
-                    <div class="skill-panel" data-reveal data-next-learning>
-                        <header class="skill-panel__head">
-                            <h2 class="sk-side-title">What to learn next</h2>
-                            <form method="post" action="{% url 'skill:recommendations_refresh' %}">
-                                {% csrf_token %}
-                                <button type="submit" class="skill-link-btn">Refresh suggestions</button>
-                            </form>
-                        </header>
-                        <p class="skill-muted" data-next-learning-empty>Select a skill in the tree to see its personalized learning path.</p>
-                        {% for rec in recommendations %}
-                        <section class="skill-recs" data-skill-recommendations="{{ rec.skill.pk }}" hidden>
-                            <div class="skill-rec__from">Learning path for <strong>{{ rec.skill.name }}</strong>
-                                <span class="skill-rec__level">{{ rec.skill.get_status_display }} · {{ rec.skill.progress }}%</span>
-                            </div>
-                            {% if rec.items %}
-                            <div class="skill-rec__items">
-                                {% for item in rec.items %}
-                                <div class="skill-rec__item">
-                                    <div><strong>{{ item.name }}</strong><p>{{ item.reason }}</p></div>
-                                    <a href="{% url 'skill:skill_create' %}?name={{ item.name|urlencode }}&amp;parent={{ rec.skill.pk }}"
-                                       class="skill-chip" aria-label="Add {{ item.name }} under {{ rec.skill.name }}">+ Add</a>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            <p class="skill-muted">No suggestions available yet. Refresh to try again.</p>
-                            {% endif %}
-                        </section>
-                        {% endfor %}
-                        <p class="skill-hint">Suggestions are tailored to the selected skill and its latest assessed proficiency.</p>
-                    </div>
-
                 </aside>
             </div>
 
-            <!-- AI skill assessments -->
-            <div class="skill-panel" data-reveal>
-                <header class="skill-panel__head">
-                    <h2>AI skill assessments</h2>
-                    <span class="skill-muted">5 adaptive questions per attempt</span>
-                </header>
-                <div class="skill-assessment-list">
-                    {% for item in skill_assessments %}
-                    <article class="skill-assessment-row">
-                        <div class="skill-assessment-row__info">
-                            <strong>{{ item.skill.name }}</strong>
-                            <span class="skill-muted">
-                                {% if item.latest %}
-                                    Latest score: {{ item.latest.score|floatformat:0 }}%
-                                    · {{ item.latest.completed_at|date:"M d, Y" }}
-                                    · {{ item.attempt_count }} attempt{{ item.attempt_count|pluralize }}
+            <div class="skd-accordions">
+
+                <!-- What to learn next -->
+                <section id="skd-recs" class="skd-acc skd-acc--recs" data-skd-acc data-open="false" data-reveal>
+                    <div class="skd-acc__head">
+                        <h2 class="skd-acc__title">
+                            <button type="button" class="skd-acc__trigger" id="skd-recs-btn"
+                                    aria-expanded="false" aria-controls="skd-recs-panel">
+                                <span class="skd-acc__icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" focusable="false"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3zM18.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                                </span>
+                                <span class="skd-acc__text">
+                                    <span class="skd-acc__name">What to learn next</span>
+                                    <span class="skd-acc__meta">{% if recommendations %}AI suggestions for {{ recommendations|length }} skill{{ recommendations|length|pluralize }}{% else %}Personalized AI suggestions{% endif %}</span>
+                                </span>
+                                <span class="skd-acc__chev" aria-hidden="true">
+                                    <svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                            </button>
+                        </h2>
+                    </div>
+                    <div class="skd-acc__panel" id="skd-recs-panel" role="region" aria-labelledby="skd-recs-btn">
+                        <div class="skd-acc__inner">
+                            <div class="skd-acc__body">
+                                <div class="skd-toolbar">
+                                    <p class="skd-toolbar__note">AI-generated next steps based on each skill and its current proficiency. Nothing is added unless you choose it.</p>
+                                    <form method="post" action="{% url 'skill:recommendations_refresh' %}" data-skd-refresh>
+                                        {% csrf_token %}
+                                        <button type="submit" class="skd-pill-btn">Refresh AI suggestions</button>
+                                    </form>
+                                </div>
+                                {% if recommendations %}
+                                <ul class="skill-recs skd-recs">
+                                    {% for rec in recommendations %}
+                                    <li class="skill-rec skd-rec" data-skill-recommendations="{{ rec.skill.pk }}" style="display:none">
+                                        <span class="skill-rec__from skd-rec__from">Based on <strong>{{ rec.skill.name }}</strong>
+                                            <span class="skill-rec__level">{{ rec.skill.get_status_display }} · {{ rec.skill.progress }}%</span>
+                                        </span>
+                                        {% if rec.items %}
+                                        <div class="skill-rec__items skd-rec__items">
+                                            {% for item in rec.items %}
+                                            <div class="skill-rec__item skd-rec__item">
+                                                <div>
+                                                    <strong>{{ item.name }}</strong>
+                                                    <p>{{ item.reason }}</p>
+                                                </div>
+                                                <a href="{% url 'skill:skill_create' %}?name={{ item.name|urlencode }}&amp;parent={{ rec.skill.pk }}"
+                                                   class="skill-chip" aria-label="Add {{ item.name }} under {{ rec.skill.name }}">+ Add</a>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        <p class="skill-muted">No suggestions available yet. Try refreshing AI suggestions.</p>
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                <p class="skill-muted" data-skd-recs-empty>Select a skill in the tree to see only its personalized learning suggestions.</p>
                                 {% else %}
-                                    Not assessed yet
+                                <p class="skill-muted">Add a skill to get personalized AI suggestions for what to learn next.</p>
                                 {% endif %}
-                            </span>
-                        </div>
-                        <div class="skill-assessment-row__actions">
-                            {% if item.attempt_count %}
-                            <a class="skill-btn skill-btn--ghost skill-btn--small"
-                               href="{% url 'skill:assessment_history' item.skill.pk %}">History</a>
-                            {% endif %}
-                            <form method="post" action="{% url 'skill:assessment_start' item.skill.pk %}">
-                                {% csrf_token %}
-                                <button class="skill-btn skill-btn--primary skill-btn--small" type="submit">
-                                    {% if item.active %}Continue assessment{% elif item.latest %}Retest{% else %}Assess now{% endif %}
-                                </button>
-                            </form>
-                        </div>
-                    </article>
-                    {% empty %}
-                    <p class="skill-muted">Add a skill to start your first AI assessment.</p>
-                    {% endfor %}
-                </div>
-            </div>
-
-            {% if assessment_history %}
-            <div class="skill-panel" data-reveal>
-                <header class="skill-panel__head">
-                    <h2>Recent assessment history</h2>
-                </header>
-                <div class="skill-assessment-history">
-                    {% for attempt in assessment_history %}
-                    <a class="skill-history-row" href="{% url 'skill:assessment_result' attempt.pk %}">
-                        <span><strong>{{ attempt.skill.name }}</strong>
-                            <small>{{ attempt.completed_at|date:"M d, Y · g:i A" }}</small></span>
-                        <span class="skill-history-score">{{ attempt.score|floatformat:0 }}%</span>
-                        <span class="skill-history-arrow" aria-hidden="true">›</span>
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Project showcase -->
-            <div class="skill-panel" data-reveal>
-                <header class="skill-panel__head">
-                    <h2>Project showcase</h2>
-                     <a href="{% url 'skill:project_create' %}" class="skill-btn skill-btn--small skill-btn--primary">+ Add project</a>
-                </header>
-
-                {% if projects %}
-                <div class="skill-projects">
-                    {% for p in projects %}
-                    <article class="skill-project">
-                        {% if p.screenshot %}
-                        <img src="{{ p.screenshot.url }}" alt="Screenshot of {{ p.name }}" loading="lazy" class="skill-project__img">
-                        {% else %}
-                        <div class="skill-project__img skill-project__img--empty" aria-hidden="true">{{ p.name|slice:":1" }}</div>
-                        {% endif %}
-                        <div class="skill-project__body">
-                            <h3>{{ p.name }}</h3>
-                            <p>{{ p.description|truncatechars:90 }}</p>
-                            <div class="skill-chips">
-                                {% for t in p.technologies.all|slice:":4" %}<span class="skill-tag">{{ t.name }}</span>{% endfor %}
                             </div>
-                            <a href="{% url 'skill:project_detail' p.pk %}" class="skill-link">View details</a>
                         </div>
-                    </article>
-                    {% endfor %}
-                </div>
-                {% else %}
-                               <div class="skill-empty">
-                    <p>No projects yet. Projects you build will show here, linked to the skills they use.</p>
-                    <a href="{% url 'skill:project_create' %}" class="skill-btn skill-btn--ghost skill-btn--small">Add your first project</a>
-                </div>
+                    </div>
+                </section>
+
+                <!-- AI skill assessments -->
+                <section id="skd-assess" class="skd-acc skd-acc--assess" data-skd-acc data-open="false" data-reveal>
+                    <div class="skd-acc__head">
+                        <h2 class="skd-acc__title">
+                            <button type="button" class="skd-acc__trigger" id="skd-assess-btn"
+                                    aria-expanded="false" aria-controls="skd-assess-panel">
+                                <span class="skd-acc__icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" focusable="false"><path d="M9 11l2.2 2.2L15.5 9M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                                <span class="skd-acc__text">
+                                    <span class="skd-acc__name">AI skill assessments</span>
+                                    <span class="skd-acc__meta">5 adaptive questions per attempt{% if skill_assessments %} · {{ skill_assessments|length }} skill{{ skill_assessments|length|pluralize }}{% endif %}</span>
+                                </span>
+                                <span class="skd-acc__chev" aria-hidden="true">
+                                    <svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                            </button>
+                        </h2>
+                    </div>
+                    <div class="skd-acc__panel" id="skd-assess-panel" role="region" aria-labelledby="skd-assess-btn">
+                        <div class="skd-acc__inner">
+                            <div class="skd-acc__body">
+                                <div class="skill-assessment-list skd-assess-grid">
+                                    {% for item in skill_assessments %}
+                                    <article class="skill-assessment-row skd-assess">
+                                        <div class="skill-assessment-row__info skd-assess__info">
+                                            <strong>{{ item.skill.name }}</strong>
+                                            <span class="skill-muted">
+                                                {% if item.latest %}
+                                                    Latest score: {{ item.latest.score|floatformat:0 }}%
+                                                    · {{ item.latest.completed_at|date:"M d, Y" }}
+                                                    · {{ item.attempt_count }} attempt{{ item.attempt_count|pluralize }}
+                                                {% else %}
+                                                    Not assessed yet
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        <div class="skill-assessment-row__actions skd-assess__actions">
+                                            {% if item.attempt_count %}
+                                            <a class="skill-btn skill-btn--ghost skill-btn--small"
+                                               href="{% url 'skill:assessment_history' item.skill.pk %}">History</a>
+                                            {% endif %}
+                                            <form method="post" action="{% url 'skill:assessment_start' item.skill.pk %}">
+                                                {% csrf_token %}
+                                                <button class="skill-btn skill-btn--primary skill-btn--small" type="submit">
+                                                    {% if item.active %}Continue assessment{% elif item.latest %}Retest{% else %}Assess now{% endif %}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </article>
+                                    {% empty %}
+                                    <p class="skill-muted">Add a skill to start your first AI assessment.</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {% if assessment_history %}
+                <!-- Recent assessment history -->
+                <section id="skd-history" class="skd-acc skd-acc--history" data-skd-acc data-open="false" data-reveal>
+                    <div class="skd-acc__head">
+                        <h2 class="skd-acc__title">
+                            <button type="button" class="skd-acc__trigger" id="skd-history-btn"
+                                    aria-expanded="false" aria-controls="skd-history-panel">
+                                <span class="skd-acc__icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" focusable="false"><path d="M12 7v5l3 2M4 12a8 8 0 108-8 8.3 8.3 0 00-5.7 2.4L4 8M4 4v4h4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                                <span class="skd-acc__text">
+                                    <span class="skd-acc__name">Recent assessment history</span>
+                                    <span class="skd-acc__meta">{{ assessment_history|length }} recent attempt{{ assessment_history|length|pluralize }}</span>
+                                </span>
+                                <span class="skd-acc__chev" aria-hidden="true">
+                                    <svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                            </button>
+                        </h2>
+                    </div>
+                    <div class="skd-acc__panel" id="skd-history-panel" role="region" aria-labelledby="skd-history-btn">
+                        <div class="skd-acc__inner">
+                            <div class="skd-acc__body">
+                                <div class="skill-assessment-history skd-history-grid">
+                                    {% for attempt in assessment_history %}
+                                    <a class="skill-history-row skd-history" href="{% url 'skill:assessment_result' attempt.pk %}">
+                                        <span><strong>{{ attempt.skill.name }}</strong>
+                                            <small>{{ attempt.completed_at|date:"M d, Y · g:i A" }}</small></span>
+                                        <span class="skill-history-score">{{ attempt.score|floatformat:0 }}%</span>
+                                        <span class="skill-history-arrow" aria-hidden="true">›</span>
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
                 {% endif %}
+
+                <!-- Project showcase -->
+                <section id="skd-projects" class="skd-acc skd-acc--projects" data-skd-acc data-open="true" data-reveal>
+                    <div class="skd-acc__head">
+                        <h2 class="skd-acc__title">
+                            <button type="button" class="skd-acc__trigger" id="skd-projects-btn"
+                                    aria-expanded="true" aria-controls="skd-projects-panel">
+                                <span class="skd-acc__icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" focusable="false"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                                </span>
+                                <span class="skd-acc__text">
+                                    <span class="skd-acc__name">Project showcase</span>
+                                    <span class="skd-acc__meta">{% if projects %}{{ projects|length }} project{{ projects|length|pluralize }}{% else %}No projects yet{% endif %}</span>
+                                </span>
+                                <span class="skd-acc__chev" aria-hidden="true">
+                                    <svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                            </button>
+                        </h2>
+                        <a href="{% url 'skill:project_create' %}" class="skill-btn skill-btn--small skill-btn--primary skd-acc__action">+ Add project</a>
+                    </div>
+                    <div class="skd-acc__panel" id="skd-projects-panel" role="region" aria-labelledby="skd-projects-btn">
+                        <div class="skd-acc__inner">
+                            <div class="skd-acc__body">
+                                {% if projects %}
+                                <div class="skill-projects skd-projects">
+                                    {% for p in projects %}
+                                    <article class="skill-project skd-project">
+                                        {% if p.screenshot %}
+                                        <img src="{{ p.screenshot.url }}" alt="Screenshot of {{ p.name }}" loading="lazy" class="skill-project__img">
+                                        {% else %}
+                                        <div class="skill-project__img skill-project__img--empty" aria-hidden="true">{{ p.name|slice:":1" }}</div>
+                                        {% endif %}
+                                        <div class="skill-project__body">
+                                            <h3>{{ p.name }}</h3>
+                                            <p>{{ p.description|truncatechars:90 }}</p>
+                                            <div class="skill-chips">
+                                                {% for t in p.technologies.all|slice:":4" %}<span class="skill-tag">{{ t.name }}</span>{% endfor %}
+                                            </div>
+                                            <a href="{% url 'skill:project_detail' p.pk %}" class="skill-link">View details</a>
+                                        </div>
+                                    </article>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="skill-empty">
+                                    <p>No projects yet. Projects you build will show here, linked to the skills they use.</p>
+                                    <a href="{% url 'skill:project_create' %}" class="skill-btn skill-btn--ghost skill-btn--small">Add your first project</a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
             </div>
 
         </div>
@@ -437,5 +539,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'skill/skill-home.js' %}?v=20261112b" defer></script>
+<script src="{% static 'skill/skill-home.js' %}" defer></script>
+<script src="{% static 'skill/skill-dashboard.js' %}" defer></script>
 {% endblock %}
