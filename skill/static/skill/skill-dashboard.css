@@ -1,0 +1,376 @@
+/* =========================================================
+   Skill dashboard layout + accordions (skill/static/skill/skill-dashboard.css)
+   Loaded AFTER skill-home.css and assessment.css, only by skill/home.html.
+   Everything is scoped to .skill-page and uses new "skd-" classes, plus a few
+   deliberate overrides of existing sk-* layout rules (the workspace grid).
+   Uses the --sk-* tokens defined in skill-home.css (derived from site.css).
+   ========================================================= */
+
+.skill-page {
+    --skd-ease: cubic-bezier(0.22, 0.8, 0.28, 1);
+    --skd-dur: 0.38s;
+    --skd-tint-recs: var(--sk-secondary);
+    --skd-tint-assess: var(--sk-accent);
+    --skd-tint-history: var(--sk-primary);
+    --skd-tint-projects: var(--sk-secondary);
+}
+
+/* ---------- Summary strip ---------- */
+.skd-stats { margin-bottom: 16px; }
+.skd-stats__list { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.skd-stat {
+    position: relative;
+    overflow: hidden;
+    padding: 14px 18px 16px;
+    transition: transform 0.25s var(--skd-ease), border-color 0.25s ease, background 0.25s ease;
+}
+.skd-stat::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--skd-stat-c, var(--sk-primary));
+    opacity: 0.85;
+}
+.skd-stat:hover { transform: translateY(-2px); border-color: var(--sk-border-hover); }
+.skd-stat--total { --skd-stat-c: var(--sk-primary); }
+.skd-stat--done { --skd-stat-c: #65c99a; }
+.skd-stat--progress { --skd-stat-c: var(--sk-accent); }
+.skd-stat--avg { --skd-stat-c: var(--sk-secondary); }
+.skd-stat__bar {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 8px;
+    height: 3px;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--sk-text) 8%, transparent);
+    overflow: hidden;
+}
+.skd-stat__bar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: calc(var(--skd-avg, 0) * 1%);
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--sk-primary), var(--sk-secondary));
+    transform-origin: left;
+    animation: skd-grow 1s var(--skd-ease) 0.3s both;
+}
+.skd-stat--avg { padding-bottom: 22px; }
+
+/* ---------- Balanced workspace ----------
+   Old layout: [tree | tall sidebar] with align-items:start left a big hole under
+   the tree. Now the sidebar only holds the "Selected" panel and both columns
+   stretch to the same height; the tree canvas flexes to fill its panel. */
+.skd-workspace { grid-template-columns: minmax(0, 1fr); align-items: stretch; margin-bottom: 18px; }
+.sk-js .skd-workspace { grid-template-columns: minmax(0, 1fr) 320px; }
+
+.skd-tree-panel { display: flex; flex-direction: column; min-width: 0; }
+.skd-tree-panel .skill-panel__head { margin-bottom: 14px; }
+.skd-tree-panel .sk-canvas {
+    flex: 1 1 auto;
+    min-height: 300px;
+    max-height: 560px;
+}
+.skd-tree-panel .skill-empty { flex: 1; display: grid; align-content: center; justify-items: center; gap: 12px; text-align: center; min-height: 220px; }
+
+.skd-side { display: flex; min-width: 0; }
+.skd-selected {
+    flex: 1;
+    width: 100%;
+    display: none;
+}
+.sk-js .skd-selected { display: flex; flex-direction: column; }
+.skd-selected .sk-side-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sk-accent);
+}
+.skd-selected .sk-side-title::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--sk-accent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--sk-accent) 70%, transparent);
+}
+.skd-selected__empty {
+    display: grid;
+    flex: 1 1 auto;
+    place-items: center;
+    min-height: 220px;
+    padding: 18px;
+    border: 1px dashed var(--sk-border-hover);
+    border-radius: var(--sk-r-md);
+    text-align: center;
+    line-height: 1.55;
+}
+.skd-selected__empty[hidden] { display: none; }
+.skd-selected .sk-detail__body:not([hidden]),
+.skd-selected .sk-pdetail:not([hidden]) { animation: skd-fade-up 0.35s var(--skd-ease) both; }
+
+/* ---------- Accordions ---------- */
+.skd-accordions { display: grid; gap: 12px; }
+
+.skd-acc {
+    --skd-c: var(--sk-primary);
+    position: relative;
+    border: 1px solid var(--sk-border);
+    border-radius: var(--sk-r-md);
+    background: var(--sk-card);
+    transition: border-color 0.25s ease, box-shadow 0.3s ease, background 0.25s ease;
+}
+.skd-acc--recs { --skd-c: var(--skd-tint-recs); }
+.skd-acc--assess { --skd-c: var(--skd-tint-assess); }
+.skd-acc--history { --skd-c: var(--skd-tint-history); }
+.skd-acc--projects { --skd-c: var(--skd-tint-projects); }
+
+.skd-acc:hover { border-color: var(--sk-border-hover); }
+.skd-acc.is-open {
+    border-color: color-mix(in srgb, var(--skd-c) 38%, var(--sk-border));
+    box-shadow: 0 14px 34px -22px color-mix(in srgb, var(--skd-c) 60%, transparent);
+}
+
+.skd-acc__head { display: flex; align-items: center; gap: 10px; padding-right: 14px; }
+.skd-acc__title { flex: 1 1 auto; min-width: 0; margin: 0; font-size: inherit; }
+
+.skd-acc__trigger {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 14px 16px;
+    border: 0;
+    border-radius: var(--sk-r-md);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.skd-acc__trigger:hover { background: color-mix(in srgb, var(--sk-text) 3%, transparent); }
+.skd-acc__trigger:focus-visible { outline: 2px solid var(--sk-accent); outline-offset: -2px; }
+
+.skd-acc__icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    color: var(--skd-c);
+    background: color-mix(in srgb, var(--skd-c) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--skd-c) 26%, transparent);
+    transition: transform 0.3s var(--skd-ease), background 0.25s ease;
+}
+.skd-acc__icon svg { width: 19px; height: 19px; }
+.skd-acc__trigger:hover .skd-acc__icon { transform: scale(1.07) rotate(-4deg); }
+.skd-acc.is-open .skd-acc__icon { background: color-mix(in srgb, var(--skd-c) 22%, transparent); }
+
+.skd-acc__text { display: grid; gap: 1px; min-width: 0; flex: 1 1 auto; }
+.skd-acc__name { font-size: 1.02rem; font-weight: 600; color: var(--sk-text); line-height: 1.3; }
+.skd-acc__meta { color: var(--sk-muted); font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.skd-acc__chev {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    color: var(--sk-muted);
+    background: color-mix(in srgb, var(--sk-text) 5%, transparent);
+    transition: transform var(--skd-dur) var(--skd-ease), color 0.2s ease, background 0.2s ease;
+}
+.skd-acc__chev svg { width: 16px; height: 16px; }
+.skd-acc__trigger:hover .skd-acc__chev { color: var(--sk-text); background: color-mix(in srgb, var(--skd-c) 20%, transparent); }
+.skd-acc__trigger[aria-expanded="true"] .skd-acc__chev { transform: rotate(180deg); color: var(--skd-c); }
+
+.skd-acc__action { flex: 0 0 auto; white-space: nowrap; }
+
+/* Panel: the grid-template-rows 0fr -> 1fr trick animates to the real content
+   height without measuring anything in JS. Without JS (no .skd-js) everything stays open. */
+.skd-acc__panel { display: grid; grid-template-rows: 1fr; }
+.skd-acc__inner { min-height: 0; overflow: hidden; }
+
+.skd-js .skd-acc__panel {
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    transition: grid-template-rows var(--skd-dur) var(--skd-ease), visibility 0s linear var(--skd-dur);
+}
+.skd-js .skd-acc.is-open > .skd-acc__panel {
+    grid-template-rows: 1fr;
+    visibility: visible;
+    transition: grid-template-rows var(--skd-dur) var(--skd-ease), visibility 0s;
+}
+.skd-acc__body { padding: 4px 18px 18px; }
+.skd-js .skd-acc__body { opacity: 0; transform: translateY(-8px); transition: opacity 0.25s ease, transform 0.35s var(--skd-ease); }
+.skd-js .skd-acc.is-open .skd-acc__body { opacity: 1; transform: none; transition-delay: 0.08s; }
+
+/* Before JS has set the initial state, don't animate */
+.skd-js .skd-acc:not(.is-ready) .skd-acc__panel,
+.skd-js .skd-acc:not(.is-ready) .skd-acc__body { transition: none; }
+
+/* ---------- Shared in-panel pieces ---------- */
+.skd-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-bottom: 14px; }
+.skd-toolbar__note { flex: 1 1 260px; margin: 0; color: var(--sk-muted); font-size: 0.8rem; line-height: 1.5; }
+.skd-pill-btn {
+    padding: 7px 14px;
+    border: 1px solid color-mix(in srgb, var(--sk-accent) 40%, var(--sk-border));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--sk-accent) 10%, transparent);
+    color: var(--sk-accent);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.skd-pill-btn:hover { transform: translateY(-1px); background: color-mix(in srgb, var(--sk-accent) 18%, transparent); border-color: var(--sk-accent); }
+
+/* ---------- Recommendations: card grid ---------- */
+.skd-recs { grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; align-items: start; }
+.skd-rec,
+.skill-rec.skd-rec:first-child {
+    align-content: start;
+    gap: 10px;
+    padding: 14px;
+    border: 1px solid var(--sk-border);
+    border-top: 1px solid var(--sk-border);
+    border-radius: var(--sk-r-md);
+    background: var(--sk-surface);
+    transition: border-color 0.25s ease, transform 0.25s var(--skd-ease), box-shadow 0.25s ease;
+}
+.skd-rec:hover { border-color: color-mix(in srgb, var(--sk-secondary) 45%, var(--sk-border)); transform: translateY(-2px); box-shadow: 0 12px 26px -20px rgba(0, 0, 0, 0.7); }
+.skd-rec__from { padding-bottom: 8px; border-bottom: 1px solid var(--sk-border); }
+.skd-rec__items { gap: 6px; }
+.skd-rec .skill-rec__item { padding: 9px 10px; background: var(--sk-card); transition: border-color 0.2s ease, background 0.2s ease; }
+.skd-rec .skill-rec__item:hover { border-color: var(--sk-border-hover); background: var(--sk-elevated); }
+.skd-rec .skill-rec__item p {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.skd-rec .skill-chip { transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease; }
+.skd-rec .skill-chip:hover { transform: translateY(-1px); }
+
+/* ---------- Assessments: card grid ---------- */
+.skd-assess-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; align-items: stretch; }
+.skd-assess-grid > p { grid-column: 1 / -1; }
+.skd-assess,
+.skill-assessment-row.skd-assess:last-child {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px;
+    border: 1px solid var(--sk-border);
+    border-bottom: 1px solid var(--sk-border);
+    border-radius: var(--sk-r-md);
+    background: var(--sk-surface);
+    transition: border-color 0.25s ease, transform 0.25s var(--skd-ease), box-shadow 0.25s ease;
+}
+.skd-assess:hover { border-color: color-mix(in srgb, var(--sk-accent) 45%, var(--sk-border)); transform: translateY(-2px); box-shadow: 0 12px 26px -20px rgba(0, 0, 0, 0.7); }
+.skd-assess__info strong { font-size: 0.98rem; overflow-wrap: anywhere; }
+.skd-assess__actions { justify-content: flex-start; margin-top: auto; }
+.skd-assess__actions form { margin: 0; }
+
+/* ---------- History: compact two-column list ---------- */
+.skd-history-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+.skd-history,
+.skill-history-row.skd-history:last-child {
+    padding: 11px 14px;
+    border: 1px solid var(--sk-border);
+    border-bottom: 1px solid var(--sk-border);
+    border-radius: var(--sk-r-md);
+    background: var(--sk-surface);
+    transition: border-color 0.25s ease, transform 0.25s var(--skd-ease), background 0.25s ease;
+}
+.skd-history:hover { border-color: color-mix(in srgb, var(--sk-primary) 50%, var(--sk-border)); background: var(--sk-elevated); transform: translateX(3px); }
+.skd-history .skill-history-arrow { transition: transform 0.25s var(--skd-ease), color 0.2s ease; }
+.skd-history:hover .skill-history-arrow { transform: translateX(3px); color: var(--sk-accent); }
+.skd-history:focus-visible { outline: 2px solid var(--sk-accent); outline-offset: 2px; }
+
+/* ---------- Projects: compact cards ---------- */
+.skd-projects { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.skd-project .skill-project__img { height: 118px; }
+.skd-project .skill-project__body { gap: 6px; padding: 13px 14px 14px; }
+.skd-project .skill-project__body h3 { font-size: 0.96rem; }
+.skd-project .skill-project__body p { font-size: 0.8rem; line-height: 1.5; }
+.skd-project .skill-project__img { transition: transform 0.5s var(--skd-ease); }
+.skd-project { overflow: hidden; }
+.skd-project:hover .skill-project__img { transform: scale(1.03); }
+.skd-project .skill-project__img { transform-origin: center; }
+
+/* ---------- Entrance ---------- */
+@keyframes skd-fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes skd-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.sk-motion .skd-stats__list > li { animation: skd-fade-up 0.5s var(--skd-ease) both; }
+.sk-motion .skd-stats__list > li:nth-child(2) { animation-delay: 0.06s; }
+.sk-motion .skd-stats__list > li:nth-child(3) { animation-delay: 0.12s; }
+.sk-motion .skd-stats__list > li:nth-child(4) { animation-delay: 0.18s; }
+.sk-motion .skd-accordions > .skd-acc { animation: skd-fade-up 0.5s var(--skd-ease) 0.2s both; }
+.sk-motion .skd-accordions > .skd-acc:nth-child(2) { animation-delay: 0.28s; }
+.sk-motion .skd-accordions > .skd-acc:nth-child(3) { animation-delay: 0.36s; }
+.sk-motion .skd-accordions > .skd-acc:nth-child(4) { animation-delay: 0.44s; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1000px) {
+    .sk-js .skd-workspace { grid-template-columns: minmax(0, 1fr); }
+    .skd-selected__empty { min-height: 90px; }
+    .skd-tree-panel .sk-canvas { max-height: 520px; }
+}
+@media (max-width: 720px) {
+    .skd-stats__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .skd-acc__head { flex-wrap: wrap; padding-right: 0; }
+    .skd-acc__title { flex-basis: 100%; }
+    .skd-acc__action { margin: -2px 16px 14px; }
+    .skd-acc__trigger { padding: 13px 14px; gap: 12px; }
+    .skd-acc__body { padding: 2px 14px 14px; }
+    .skd-recs, .skd-assess-grid, .skd-history-grid, .skd-projects { grid-template-columns: minmax(0, 1fr); }
+    .skd-acc__meta { white-space: normal; }
+}
+@media (max-width: 420px) {
+    .skd-tree-panel .sk-canvas { padding: 18px; }
+    .skd-acc__icon { width: 34px; height: 34px; }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .skd-acc__panel,
+    .skd-acc__body,
+    .skd-acc__chev,
+    .skd-acc__icon,
+    .skd-acc,
+    .skd-stat,
+    .skd-rec,
+    .skd-assess,
+    .skd-history,
+    .skd-history .skill-history-arrow,
+    .skd-project .skill-project__img,
+    .skd-pill-btn { transition: none !important; }
+    .skd-stats__list > li,
+    .skd-accordions > .skd-acc,
+    .skd-stat__bar::after,
+    .skd-selected .sk-detail__body,
+    .skd-selected .sk-pdetail { animation: none !important; }
+    .skd-js .skd-acc__body { transform: none; }
+    .skd-stat:hover, .skd-rec:hover, .skd-assess:hover, .skd-history:hover,
+    .skd-acc__trigger:hover .skd-acc__icon { transform: none; }
+}
+
+/* Dashboard header: keep the "+ Add skill" button on one line on small screens */
+.skill-dash-head .skill-btn { white-space: nowrap; flex: 0 0 auto; }
+@media (max-width: 520px) {
+    .skill-dash-head { flex-wrap: wrap; align-items: flex-start; }
+}
